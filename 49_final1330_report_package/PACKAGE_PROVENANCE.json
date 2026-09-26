@@ -1,0 +1,19 @@
+{
+  "DCEC": 436,
+  "DCEW": 436,
+  "aggregate_active_gpu_hours": 159.09368778686834,
+  "checkpoint_sha256": "ac1d90e329a72e0d66e8665e123a19e94bfae3209c3ef8a4f9ca3b91578c7844",
+  "classification_preserved": 1330,
+  "classification_threshold": 0.532955974340439,
+  "git_branch": "main",
+  "git_commit": "1422aa02711dbeb6b906eddccd0a7c0a5b298885",
+  "phase2_plan_sha256": "e7e057388cc43f48931b93dfb3e2aead22df6ecea5a9769f6dc948ef29e88eeb",
+  "population": 1330,
+  "scientific_protocol_sha256": "5840aa9bee076b493c6a645e140edaad892373433c7e919e95ed4e60e44158d5",
+  "stage45_audited_images": 1330,
+  "stage45_failures": 0,
+  "stage45_status": "PASS",
+  "status": "PASS",
+  "tau_E": 0.5,
+  "tau_RRA": 0.5
+}

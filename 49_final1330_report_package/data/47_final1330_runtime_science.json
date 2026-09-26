@@ -1,0 +1,17 @@
+{
+  "aggregate_active_gpu_hours": 159.09368778686834,
+  "excludes": "external host sleep, WSL restart, manual recovery and post-result artifact hashing",
+  "gpu": "NVIDIA RTX PRO 5000 Blackwell",
+  "ideal_four_gpu_active_hours": 39.773421946717086,
+  "ideal_two_gpu_active_hours": 79.54684389343417,
+  "images_per_active_hour": 8.359853986047199,
+  "mean_minutes_per_image": 7.1771588475278945,
+  "median_minutes_per_image": 2.5906960126333614,
+  "n_images": 1330,
+  "q25_minutes": 0.7152382721750068,
+  "q75_minutes": 12.418378063183336,
+  "q95_minutes": 25.455845941909146,
+  "sequential_equivalent_days": 6.628903657786181,
+  "spearman_megapixels_vs_active_runtime": 0.9345339579137272,
+  "timing_definition": "image_wall_seconds_before_artifact_hashing from per-image result.json"
+}

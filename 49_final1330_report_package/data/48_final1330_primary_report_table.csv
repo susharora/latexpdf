@@ -1,0 +1,15 @@
+group,value,metric,estimate,ci95_low,ci95_high,bootstrap_sd,n_rows,n_clusters,bootstrap_valid,bootstrap_replicates,bootstrap_seed,method
+overall,all,classification_preservation_rate,1.0,1.0,1.0,0.0,1330,362,10000,10000,20260926,document-stem cluster percentile bootstrap
+overall,all,DCEC_rate,0.32781954887218046,0.30318329909729747,0.353603817696023,0.012883901177811994,1330,362,10000,10000,20260926,document-stem cluster percentile bootstrap
+overall,all,DCEW_rate_given_DCEC,1.0,1.0,1.0,0.0,1330,362,10000,10000,20260926,document-stem cluster percentile bootstrap
+overall,all,E_clean_mean,0.5506005704395597,0.5346929835077523,0.5673349433069315,0.00833395218953701,1330,362,10000,10000,20260926,document-stem cluster percentile bootstrap
+overall,all,E_adv_mean,0.003675761869390278,0.0032215772609922137,0.004154353249458136,0.00023851115966578825,1330,362,10000,10000,20260926,document-stem cluster percentile bootstrap
+overall,all,relative_E_degradation_median,0.9999448170327276,0.9999292999176038,0.9999527891227906,5.362068971495368e-06,1330,362,10000,10000,20260926,document-stem cluster percentile bootstrap
+overall,all,RRA_clean_mean,0.4996700772564073,0.49061574584984446,0.5083649684577983,0.004556354058947711,1330,362,10000,10000,20260926,document-stem cluster percentile bootstrap
+overall,all,RRA_adv_mean,0.008699265561040986,0.007296231387307887,0.010230818505229259,0.0007375030496199263,1330,362,10000,10000,20260926,document-stem cluster percentile bootstrap
+overall,all,relative_RRA_degradation_median,1.0,1.0,1.0,0.0,1330,362,10000,10000,20260926,document-stem cluster percentile bootstrap
+overall,all,mu_clean_median,16.37125528369259,14.6933828346492,17.76730876040566,0.7552740112527039,1330,362,10000,10000,20260926,document-stem cluster percentile bootstrap
+overall,all,mu_adv_median,0.00069311697952235,0.00061194695787485,0.0008088457350911,5.151682524550909e-05,1330,362,10000,10000,20260926,document-stem cluster percentile bootstrap
+overall,all,RRA_lift_clean_median,13.768054825887345,13.114559418287833,14.372684872774546,0.322897600472486,1330,362,10000,10000,20260926,document-stem cluster percentile bootstrap
+overall,all,RRA_lift_adv_median,0.0,0.0,0.0,0.0,1330,362,10000,10000,20260926,document-stem cluster percentile bootstrap
+overall,all,physical_linf_recomputed_mean,0.003703376087276936,0.0036735695880915666,0.0037322423999804006,1.5104296390865206e-05,1330,362,10000,10000,20260926,document-stem cluster percentile bootstrap

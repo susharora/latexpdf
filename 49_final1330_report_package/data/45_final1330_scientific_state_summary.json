@@ -1,0 +1,23 @@
+{
+  "adv_x_dtype_counts": {
+    "float32": 1330
+  },
+  "audited_images": 1330,
+  "expected_images": 1330,
+  "failures": [],
+  "map_dtype_counts_adv": {
+    "float32": 1330
+  },
+  "map_dtype_counts_clean": {
+    "float32": 1330
+  },
+  "max_adv_E_abs_error": 2.42861286636753e-17,
+  "max_clean_E_abs_error": 1.887379141862766e-15,
+  "max_linf_abs_error": 2.903535085974074e-10,
+  "max_physical_linf": 0.00392156862745098,
+  "mean_E_adv": 0.0036757618693902955,
+  "mean_E_clean": 0.5506005704395597,
+  "mean_physical_l2": 8.415259587490368,
+  "median_relative_E_degradation": 0.9999448170327276,
+  "status": "PASS"
+}

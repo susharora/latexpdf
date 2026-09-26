@@ -1,0 +1,9 @@
+{
+  "classification_threshold": 0.5329559743404388,
+  "classification_threshold_file": "output/trufor_policy_c_frozen_protocol/stage03_dev_calibration_accuracy/frozen_threshold.json",
+  "classification_threshold_file_sha256": "44aad4b18dad629e5f60fdd12a1b46c9b5c5f4493162a8638540b38d5f4f9ee6",
+  "protocol_file": "scripts/trufor/evidence_evaluation_protocol_v1.json",
+  "protocol_sha256": "51674c73deb865c3c3644885c7c2e5a2379aa71e72d5a9951df67ac931842655",
+  "stage38_input": "output/LABPC/trufor_adversarial_localisation_analysis/final_1330/45_final1330_scientific_state_audit.csv",
+  "stage38_sha256": "69d52b12556e1279dc6d30ee5b0397c422fcbfbd1b4aa20f8072be0ad749441d"
+}

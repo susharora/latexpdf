@@ -1,0 +1,14 @@
+{
+  "bootstrap_replicates": 10000,
+  "bootstrap_seed": 20260926,
+  "ci": [
+    0.025,
+    0.975
+  ],
+  "interpretation": "All 1330 images in the frozen attack population are included. Cluster-bootstrap intervals account for repeated observations sharing a document stem.",
+  "method": "document-stem cluster percentile bootstrap",
+  "population_n": 1330,
+  "stage39_input_sha256": "0b472597f3f589cf06f43598d91eb56e7c9d8affeb59c5059f48f1fe2dc361a3",
+  "status": "PASS",
+  "unique_file_stems": 362
+}

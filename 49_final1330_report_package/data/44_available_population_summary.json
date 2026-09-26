@@ -1,0 +1,17 @@
+{
+  "available_unique_images": 1330,
+  "full_population": 1330,
+  "ingested_shards": [
+    1,
+    6,
+    8,
+    9
+  ],
+  "phase2_plan_sha256": "e7e057388cc43f48931b93dfb3e2aead22df6ecea5a9769f6dc948ef29e88eeb",
+  "phaseA_images": 966,
+  "phaseB_delta_images": 364,
+  "protocol_sha256": "5840aa9bee076b493c6a645e140edaad892373433c7e919e95ed4e60e44158d5",
+  "remaining_by_phase2_shard": [],
+  "remaining_images": 0,
+  "status": "PASS"
+}
