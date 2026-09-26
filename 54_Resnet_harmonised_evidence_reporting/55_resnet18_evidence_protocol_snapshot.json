@@ -1,0 +1,34 @@
+{
+  "DCEC": "DC_clean AND E_clean >= tau_E AND RRA_clean >= tau_RRA",
+  "DCEW": "DCEC AND DC_adv AND (E_adv < tau_E OR RRA_adv < tau_RRA)",
+  "DC_adv": "adv_margin >= 0",
+  "DC_clean": "clean_margin >= 0",
+  "E": "sum CAM in union_mask / sum CAM in content_mask",
+  "RRA": "K=|union_mask|; exact top-K CAM pixels within content_mask; GT overlap / K",
+  "RRA_helper_sha256": "c7efc786ee6bee1ef654b44abaffc56a5a621eff349a8c02d2dfbc002959df90",
+  "RRA_primary_tie_rule": "ascending flattened valid-pixel index within cutoff tie",
+  "attack_rerun": false,
+  "bootstrap": {
+    "CI": "percentile 95%",
+    "cluster": "file_stem",
+    "reps": 10000,
+    "seed": 20260926
+  },
+  "checkpoint_sha256": "25ad8b1482be20e9d5e450770d6970b820ebc9470c9da3c4ec46db2558009402",
+  "classification_flip": "reported separately; never counted as DCEW",
+  "ground_truth": "stored union_mask",
+  "name": "ResNet-18 harmonised DC-DCEC-DCEW evidence reporting",
+  "relationship_to_trufor": "same E/RRA/DCEC/DCEW reporting semantics and identical RRA implementation/tie handling",
+  "schema_version": 1,
+  "sensitivity_grid": [
+    0.25,
+    0.5,
+    0.75
+  ],
+  "source_attack_objective": "minimise_gradcam_E",
+  "source_epsilon_255": 1.0,
+  "tau_E": 0.5,
+  "tau_RRA": 0.5,
+  "threshold_status": "study-defined majority criterion; not a literature-mandated cutoff",
+  "valid_support": "stored content_mask; fixed padding excluded"
+}

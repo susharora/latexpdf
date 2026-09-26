@@ -1,0 +1,15 @@
+{
+  "exact_bundle_count": 450,
+  "max_A_recompute_error": 1.4245580992611195e-08,
+  "max_E_adv_recompute_error": 4.442634582435545e-08,
+  "max_E_clean_recompute_error": 1.3253069097718395e-07,
+  "max_PG_adv_recompute_error": 0.0,
+  "max_PG_clean_recompute_error": 0.0,
+  "max_margin_exact_bundle_error": 3.552713678800501e-15,
+  "max_mu_adv_recompute_error": 7.03417931902095e-07,
+  "max_mu_clean_recompute_error": 1.753821544880907e-06,
+  "max_probability_exact_bundle_error": 1.1102230246251565e-16,
+  "pixel_linf_max": 0.0039215851575136,
+  "population": 450,
+  "status": "PASS"
+}
