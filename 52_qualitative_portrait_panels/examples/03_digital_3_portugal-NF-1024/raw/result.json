@@ -1,0 +1,90 @@
+{
+  "adversarial": {
+    "A": 0.028436533442315372,
+    "E": 8.510295623839596e-05,
+    "PG": 0.0,
+    "adv_x_max": 0.99609375,
+    "adv_x_min": 0.0,
+    "adv_z_max": 1.0,
+    "adv_z_min": 0.0,
+    "classification_preserved": true,
+    "mu_w": 0.002992733147696454,
+    "physical_linf": 0.003921568859368563,
+    "score": 0.998474657535553,
+    "score_margin": 0.46551868319511414
+  },
+  "authoritative_representation": {
+    "dtype": "float32",
+    "npz_key": "adv_x_model",
+    "policy_c_rerun": false,
+    "re_jpeg": false,
+    "relation_to_physical": "z = x * 256/255",
+    "requantised": false,
+    "shape_chw": [
+      3,
+      1812,
+      2852
+    ]
+  },
+  "cache_path": "data/processed/policy_c_official_test/test/attack/digital_3/iphone15pro/portugal-NF-1024.jpg",
+  "cache_sha256": "22907f0be4b2bb6c368d09b3af1fcb0ebb26c67e1d7a57f0dbbfe6a7813f7c6b",
+  "clean": {
+    "A": 0.028436533442315372,
+    "E": 0.8696127284861916,
+    "PG": 1.0,
+    "mu_w": 30.580827661368616,
+    "score": 0.9996776580810547,
+    "score_margin": 0.46672168374061584,
+    "stage4_E_abs_error": 4.28301888399929e-08,
+    "stage4_score_abs_error": 1.1102230246251565e-16
+  },
+  "clipped_gt_rectangles": 1,
+  "degradation": {
+    "delta_E": 0.8695276255299532,
+    "delta_PG": 1.0,
+    "delta_mu_w": 30.57783492822092,
+    "relative_E": 0.9999021369473438,
+    "relative_mu_w": 0.9999021369473438
+  },
+  "eval_split": "official_test",
+  "family_display": "d3",
+  "file_stem": "portugal-NF-1024",
+  "hardware_source": "iphone15pro",
+  "image_path": "test/attack/digital_3/iphone15pro/portugal-NF-1024.jpg",
+  "memory_route": {
+    "attention_chunk_activation_checkpointing": true,
+    "attention_chunk_checkpoint_use_reentrant": false,
+    "attention_modules": 32,
+    "dncnn_segments": 4,
+    "inplace_activations_disabled": 38,
+    "max_score_elems": 300000000,
+    "mlp_modules": 32,
+    "phase2": true,
+    "shard_id": 3,
+    "stage": "32_run_phase2_multigpu_shard"
+  },
+  "native_height": 1812,
+  "native_pixels": 5167824,
+  "native_width": 2852,
+  "optimisation": {
+    "accepted_steps": 10,
+    "boundary_pullbacks": 0,
+    "gradient_seconds_total": 163.45568230000208,
+    "max_gradient_peak_allocated_gib": 35.817440032958984,
+    "max_gradient_peak_reserved_gib": 52.421875,
+    "max_query_chunks_one_attention": 6,
+    "min_split_attention_modules": 26,
+    "reference_forwards_total": 12,
+    "reference_seconds_total": 61.241288026983966,
+    "steps": 10
+  },
+  "pilot_order": 697,
+  "pilot_role": "full_population",
+  "protocol_sha256": "5840aa9bee076b493c6a645e140edaad892373433c7e919e95ed4e60e44158d5",
+  "status": "PASS",
+  "threshold": 0.5329559743404388,
+  "timing": {
+    "image_wall_seconds_before_artifact_hashing": 260.003440977991
+  },
+  "variant": "digital_3"
+}

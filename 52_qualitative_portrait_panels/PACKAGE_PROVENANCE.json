@@ -1,0 +1,17 @@
+{
+  "checkpoint_sha256": "ac1d90e329a72e0d66e8665e123a19e94bfae3209c3ef8a4f9ca3b91578c7844",
+  "evidence_table_sha256": "0b472597f3f589cf06f43598d91eb56e7c9d8affeb59c5059f48f1fe2dc361a3",
+  "examples": 6,
+  "git_commit": "2a1a3815f3e12a4c20feeca23dd05b8a5f3f3a9b",
+  "master_manifest_sha256": "78c210b3f1a107fb1bec0416e8de1e703e0e86a47b04ac34c65720479182ce3e",
+  "pair_indices_used": [
+    "output/policy_c_cache_index.csv",
+    "output/fantasyid_official_test_policy_c_index.csv"
+  ],
+  "pair_rule": "exact file_stem + hardware_source; split preferred",
+  "population": 1330,
+  "protocol_sha256": "5840aa9bee076b493c6a645e140edaad892373433c7e919e95ed4e60e44158d5",
+  "status": "PASS",
+  "tau_E": 0.5,
+  "tau_RRA": 0.5
+}

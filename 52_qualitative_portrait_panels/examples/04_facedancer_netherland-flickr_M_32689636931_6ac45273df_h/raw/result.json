@@ -1,0 +1,90 @@
+{
+  "adversarial": {
+    "A": 0.0745533727357565,
+    "E": 1.2934613766241827e-06,
+    "PG": 0.0,
+    "adv_x_max": 0.962890625,
+    "adv_x_min": 0.0,
+    "adv_z_max": 0.9666666984558105,
+    "adv_z_min": 0.0,
+    "classification_preserved": true,
+    "mu_w": 1.7349468295802885e-05,
+    "physical_linf": 0.003921568859368563,
+    "score": 0.9999769926071167,
+    "score_margin": 0.46702101826667786
+  },
+  "authoritative_representation": {
+    "dtype": "float32",
+    "npz_key": "adv_x_model",
+    "policy_c_rerun": false,
+    "re_jpeg": false,
+    "relation_to_physical": "z = x * 256/255",
+    "requantised": false,
+    "shape_chw": [
+      3,
+      1975,
+      3174
+    ]
+  },
+  "cache_path": "data/processed/policy_c_official_test/test/attack/facedancer/huawei/netherland-flickr_M_32689636931_6ac45273df_h.jpg",
+  "cache_sha256": "1adcaaefabe866463a4e2cedf1e989d9c87467a56aec428a9143829da4ed4f34",
+  "clean": {
+    "A": 0.0745533727357565,
+    "E": 0.10157374462588582,
+    "PG": 0.0,
+    "mu_w": 1.3624299062350815,
+    "score": 0.6124390959739685,
+    "score_margin": 0.07948312163352966,
+    "stage4_E_abs_error": 3.730462216910979e-09,
+    "stage4_score_abs_error": 0.0
+  },
+  "clipped_gt_rectangles": 0,
+  "degradation": {
+    "delta_E": 0.10157245116450919,
+    "delta_PG": 0.0,
+    "delta_mu_w": 1.3624125567667857,
+    "relative_E": 0.9999872657901765,
+    "relative_mu_w": 0.9999872657901765
+  },
+  "eval_split": "official_test",
+  "family_display": "FaceDancer",
+  "file_stem": "netherland-flickr_M_32689636931_6ac45273df_h",
+  "hardware_source": "huawei",
+  "image_path": "test/attack/facedancer/huawei/netherland-flickr_M_32689636931_6ac45273df_h.jpg",
+  "memory_route": {
+    "attention_chunk_activation_checkpointing": true,
+    "attention_chunk_checkpoint_use_reentrant": false,
+    "attention_modules": 32,
+    "dncnn_segments": 4,
+    "inplace_activations_disabled": 38,
+    "max_score_elems": 300000000,
+    "mlp_modules": 32,
+    "phase2": true,
+    "shard_id": 7,
+    "stage": "32_run_phase2_multigpu_shard"
+  },
+  "native_height": 1975,
+  "native_pixels": 6268650,
+  "native_width": 3174,
+  "optimisation": {
+    "accepted_steps": 10,
+    "boundary_pullbacks": 0,
+    "gradient_seconds_total": 1613.0258759700018,
+    "max_gradient_peak_allocated_gib": 43.333370208740234,
+    "max_gradient_peak_reserved_gib": 59.81640625,
+    "max_query_chunks_one_attention": 8,
+    "min_split_attention_modules": 32,
+    "reference_forwards_total": 12,
+    "reference_seconds_total": 246.0008891619991,
+    "steps": 10
+  },
+  "pilot_order": 1105,
+  "pilot_role": "full_population",
+  "protocol_sha256": "5840aa9bee076b493c6a645e140edaad892373433c7e919e95ed4e60e44158d5",
+  "status": "PASS",
+  "threshold": 0.5329559743404388,
+  "timing": {
+    "image_wall_seconds_before_artifact_hashing": 1909.5429195320003
+  },
+  "variant": "facedancer"
+}

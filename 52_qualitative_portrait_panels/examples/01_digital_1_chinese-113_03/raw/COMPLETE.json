@@ -1,0 +1,10 @@
+{
+  "artifact_sha256": {
+    "adversarial_result.npz": "049eca8658c2b4e0ab35f7d3fe87819609fac82dcb906a2011123ae02b1138ac",
+    "result.json": "8544faec13d120cf3928419b29370cbbd47e618927dfe6e8627cc88b73e6cf34",
+    "trace.csv": "77205340421caed8f3869d5e2bb7a706737daf2bc273ee3295c94a8d79c413ce"
+  },
+  "image_path": "train/attack/digital_1/iphone15pro/chinese-113_03.jpg",
+  "protocol_sha256": "5840aa9bee076b493c6a645e140edaad892373433c7e919e95ed4e60e44158d5",
+  "status": "COMPLETE"
+}

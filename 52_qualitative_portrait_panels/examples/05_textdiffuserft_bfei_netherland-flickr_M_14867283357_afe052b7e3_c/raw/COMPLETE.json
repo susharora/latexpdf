@@ -1,0 +1,10 @@
+{
+  "artifact_sha256": {
+    "adversarial_result.npz": "62ddb8531feb642d29a4507510f38679c8e8b32ebe8bee6f8048ad6f496955c9",
+    "result.json": "fa308dc6e0c213ef32c2d83fbae46098a1a51abb13995818d98d409d35d9fc89",
+    "trace.csv": "65cc20295200fcbb2682731b6efd86fc86d3b3722b08abdaec6d2456bafa0e85"
+  },
+  "image_path": "test/attack/textdiffuserft_bfei/huawei/netherland-flickr_M_14867283357_afe052b7e3_c.jpg",
+  "protocol_sha256": "5840aa9bee076b493c6a645e140edaad892373433c7e919e95ed4e60e44158d5",
+  "status": "COMPLETE"
+}

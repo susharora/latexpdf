@@ -1,0 +1,10 @@
+{
+  "artifact_sha256": {
+    "adversarial_result.npz": "af4b5a311e2e144283826a3509623cabc0720e5ae7e484f46ad74fa1be821426",
+    "result.json": "fe6e761b3e9da65d5c5456a4c0fe2212e64c8c244b34ff1d3518e45ba855e78e",
+    "trace.csv": "6484611c2574fa280bda64bedc5f34a82e1ad3324b27cdc4ff0f00a49da43662"
+  },
+  "image_path": "train/attack/digital_2/iphone15pro/arabic-NM-1090.jpg",
+  "protocol_sha256": "5840aa9bee076b493c6a645e140edaad892373433c7e919e95ed4e60e44158d5",
+  "status": "COMPLETE"
+}

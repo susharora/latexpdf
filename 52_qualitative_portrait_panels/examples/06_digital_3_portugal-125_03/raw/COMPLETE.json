@@ -1,0 +1,10 @@
+{
+  "artifact_sha256": {
+    "adversarial_result.npz": "6b94fedcae866b8d7246e10f948f538f4872921397795a0bdb1da4957c62d003",
+    "result.json": "f16f56bd8a431d8d50cb37de9d2db3b16d06a276362d7dc981d7f64ad95045a7",
+    "trace.csv": "aa28765ad50cb2f81a498ac5459c587cf42dbd87b1fdf828916b9bdc89c80374"
+  },
+  "image_path": "test/attack/digital_3/huawei/portugal-125_03.jpg",
+  "protocol_sha256": "5840aa9bee076b493c6a645e140edaad892373433c7e919e95ed4e60e44158d5",
+  "status": "COMPLETE"
+}
