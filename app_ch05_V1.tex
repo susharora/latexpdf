@@ -1,0 +1,150 @@
+% Chapter 5 supporting Appendix E, version 1 (05_AppendixV1.tex).
+% Insert AFTER the separately reserved reproducibility Appendix D.
+% In the dissertation master: \appendix; A/B/C; D; \input{05_AppendixV1.tex}.
+% Requires amsmath, booktabs, tabularx and array. Do not silently fill
+% the pending results with rates calculated from progress snapshots.
+
+\chapter{Adversarial evaluation: protocols, evidence and risks}
+\label{app:adv-details}
+
+\section{Attack question and fixed counting rules}
+\label{app:adv-counting}
+
+This appendix supports Chapter~\ref{ch:adversarial}. A clean forged image $i$ enters $\mathrm{DC}_m$ for pipeline $m$ only when the previously fixed decision rule calls it forged. The clean evidence rule then fixes a subset, independently for each pipeline:
+\begin{equation}
+\mathcal{D}_m=\left\{i\in\mathrm{DC}_m:
+E_{i,m}^{\rm clean}\geq\tau_{E,m}\ \land\
+\mathrm{RRA}_{i,m}^{\rm clean}\geq\tau_{R,m}\right\}.
+\label{eq:app-adv-dcec}
+\end{equation}
+The joint cut-offs are to be calibrated from \emph{clean} development maps and masked human ratings under Appendix~\ref{app:clean-metrics}, and then fixed. They are currently pending. The two pipelines follow the same selection procedure; a numerical cut-off may differ because the two kinds of map have different distributions. $\mathcal{D}_m$ must not be reselected after the adversarial run. Images outside $\mathcal{D}_m$ can still contribute to the descriptive DC-wide $E$ analysis, but cannot undergo a DCEC-to-DCEW transition.
+
+Among $\mathcal{D}_m$, the adversarial outcome is DCEW only when the original forged decision remains correct and $E_{i,m}^{\rm adv}<\tau_{E,m}$ or $\mathrm{RRA}_{i,m}^{\rm adv}<\tau_{R,m}$. With $N_m=|\mathcal{D}_m|$, the conditional transition rate is
+\begin{equation}
+\widehat r_{m,\mathrm{DCEW}}=
+\frac{\sum_{i\in\mathcal{D}_m}
+\mathbf{1}\{\mathrm{DC}^{\rm adv}_{i,m}\ \land\
+(E_{i,m}^{\rm adv}<\tau_{E,m}\ \lor\
+\mathrm{RRA}_{i,m}^{\rm adv}<\tau_{R,m})\}}{N_m}.
+\label{eq:app-adv-rate}
+\end{equation}
+Report separately the $N_m$ images that remain DCEC after attack, the images that flip classification and the images with missing or invalid attacked maps. A flip never counts in the DCEW numerator, even if its map has little mass. For an undefined map, agree and record a handling rule before final scoring: an undefined $E$ or RRA is never an acceptable evidence pass, but it must not be silently assigned a favourable value or mixed into the numerical $E$ distribution. State whether the primary DCEW tally treats a decision-preserved invalid map as evidence failure, and provide the alternate tally with invalid cases separated. This choice is outstanding until the gate and invalid-map convention are frozen.
+
+For each family, display $n_{\rm forged}\rightarrow n_{\rm DC}\rightarrow N_m$ before an attack rate. A percentage among $N_m$ is conditional coverage, not a percentage of all forged images. For each family and pooled results, report paired clean and adversarial $E$ and RRA, absolute change, and the mean of per-image relative $E$ changes where $E^{\rm clean}>0$. A ratio of two family means is a different statistic. Retain signed individual differences so images that improve are not dropped from a family summary. PG and component-level face/text maps help interpret the result but are not substituted for the joint gate.
+
+\section{ResNet-18: methods and checks}
+\label{app:adv-resnet}
+
+The selected classifier is the Policy-C ResNet-18 and final-block Grad-CAM described in Appendix~\ref{app:clean-resnet}. For each annotated forged image, altered boxes are projected onto the 512$\times$864 classifier canvas; $\Omega$ is the resized document-content part of that canvas, without side padding. The adversary changes RGB content pixels only. Resizing precedes the perturbation; the measured norm bound refers to these RGB canvas values, not to an already exported file or to original native-image pixels. All outputs are evaluated with the same map and region geometry as their clean baselines.
+
+The classification control uses targeted projected gradient descent toward bona fide, a random start, ten steps, step size $0.25/255$, and an RGB $L_\infty$ bound $1/255$. It evaluated 153 Digital-1, 153 Digital-2 and 150 FaceDancer images; at the final decision threshold of 0.5 it flipped 153/153, 153/153 and 144/144 of those initially DC. The six already incorrect FaceDancer cases are not part of the conditional map-loss figures. Three pilot budgets $4/255$, $2/255$ and $1/255$ each flipped 70/70 initially correct images among the same 72 pilot inputs; $1/255$ was the smallest tested conventional budget, not a certified minimum. The respective final zero-positive-CAM fractions \emph{among DC images}, 30.7\%, 96.7\% and 86.1\%, make $E$ under this control hard to interpret as a displaced still-positive explanation. For near-zero content CAM energy the frozen control evaluator records $E=0$, PG=0 and leaves map-shape comparisons undefined.
+
+The evidence attack instead differentiates $E$ through the Grad-CAM gradient weights; this requires derivatives through a derivative. The following is a compact account of the implemented search, not a separate proposal for future code:
+\begin{enumerate}
+    \item Start from the clean image; compute the reference decision and $E$ against the altered-region union.
+    \item Propose a sign-gradient step of size $0.25/255$ toward smaller $E$; clip RGB to its valid range and to the clean-centred $1/255$ box; restore all padding exactly.
+    \item If the forged-minus-bona-fide logit margin would become negative, bisect from the last feasible image toward the proposal for eight steps to recover a feasible point.
+    \item Accept a feasible proposal when its evaluated $E$ is at most the current $E+10^{-8}$; otherwise retain the last feasible image. Repeat for ten proposals. Evaluate the final image again using the frozen clean evaluator.
+\end{enumerate}
+The small tolerance means an accepted step is feasible and \emph{approximately} non-worsening, not necessarily strictly improving. The observed final $E$ was strictly below clean $E$ for all 450 images. There was one clean start, no random restart and no search over step size. As an objective, $E$ considers the altered union; it does not independently force coverage of both an altered face and altered text or optimise RRA.
+
+The final visual rerun is the sole source for the Chapter~\ref{ch:adversarial} attack means. The earlier nonvisual full run had slightly different final $E$ values; for example its Digital-1 attacked mean was about .1466 rather than the final .1458. The source of that numerical difference has not been resolved. Both support the same large decrease, but mixing one run's clean/attacked pairs with the other's relative change would be unjustified. Final reported mean forged scores were .920 for Digital-1, .841 for Digital-2 and .909 for FaceDancer; every evaluated decision was correct and every attacked positive CAM nonzero. Decision checks were performed for each individual, not inferred from these mean scores.
+
+The most important interpretation check remains the clean baseline for each attacked population. FaceDancer's paired 144-image DC clean $E$ is .4940 and PG .722, whereas the descriptive all-150 clean row in Chapter~\ref{ch:clean} is $E=.4888$ and PG .700. Neither all-150 number should be used to calculate an attack effect on the paired 144. The two development families have 51 stems each; the 144 FaceDancer DC images cover 86 stems. The completed full visual run reports 95\% document-stem bootstrap intervals for mean per-image relative $E$ loss: Digital-1 79.24\% [77.86,80.59], Digital-2 81.22\% [78.75,83.67] and FaceDancer 95.12\% [92.97,96.84]. Paired RRA and DCEC-to-DCEW intervals cannot be reported until those metrics and their clean denominator are established.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{ResNet attack risks. Checks already performed are distinguished from work needed to narrow the interpretation.}
+\label{tab:app-adv-resnet-risks}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.22\textwidth}>{\raggedright\arraybackslash}p{0.36\textwidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Risk & Measured mitigation or decision & Residual limitation \\
+\midrule
+Classification failure masquerades as evidence failure & Separate targeted PGD control; decision-preserving attack checks each forged decision and positive CAM. & The same $1/255$ budget also flips every selected DC case under the control. \\
+Padding or norm violations explain the effect & Content-only projection; explicit RGB budget and zero padding-change checks. & Perturbation occurs on the classifier canvas, not a re-exported native image. \\
+Uninformative clean maps enter the attack headline & Restrict primary attacked families by clean detection and maps; publish excluded-family counts. & DC-wide $E$ falls are not DCEC-to-DCEW rates; coverage can become smaller after the gate. \\
+GT-aware objective exaggerates realistic access & State knowledge of exact altered rectangles and use the same union for clean/attack metrics. & A document submitter may not know the examiner's annotations or detector gradients. \\
+Fixed search understates achievable damage & State single start, fixed step size and ten proposals. & No worst-case guarantee, nor guarantee that another search would fail/succeed. \\
+Area/geometry misstate map usefulness & Keep PG and region-specific context; apply the planned clean gate/visual review. & Coarse Grad-CAM, broad boxes and weak text evidence remain; dilation and RRA checks pending. \\
+Run drift/related images overstate precision & Use one final rerun for all Chapter~5 values; report paired stem intervals for relative $E$ loss. & E07/E08 difference unexplained; RRA/DCEW intervals not yet available. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{TruFor: full-image method and checks}
+\label{app:adv-trufor}
+
+The TruFor attack uses the Policy-C native-resolution image and the frozen zero-shot model from Appendix~\ref{app:clean-trufor}. Its decision is forged when the image score is at least 0.5329559743404388. The objective is to lower $E$ on the native manipulated-class probability map, measured against the altered-region union; it does not target the image score downwards and does not optimise RRA as an objective. The frozen ten-step search has the same stated physical RGB $1/255$ limit, step $0.25/255$, clean start, no restarts, eight boundary-feasibility bisection steps and acceptance only if the image remains forged and $E_{\rm candidate}\leq E_{\rm current}+10^{-8}$.
+
+The clean input is held in continuous float32 for optimisation. If the physical RGB $[0,1]$ input is $z$, the model uses $x=z\,255/256$, so the physical $1/255$ limit and $0.25/255$ step correspond to $1/256$ and $0.25/256$ in model coordinates. This distinction avoids accidentally giving TruFor a different pixel budget. All native document pixels can change because this model has no artificial padding. The authoritative attacked object is the continuous model input; there is no uint8 requantisation or second Policy-C JPEG pass before attack evaluation.
+
+The full-input gradient originally exceeded available memory. Activation recomputation in the noise branch and transformer MLPs, plus exact splitting along the attention query axis, enable the whole-document gradient without tiling or approximating attention context. Where a conventional graph fitted, the recorded worst map discrepancy was $9.54\times10^{-7}$, gradient cosine 1.000000000 and worst gradient-sign agreement .999998523. The 6.782-megapixel largest pilot input completed the recomputed backward route, with all 32 attention modules split. A separate unmodified TruFor model evaluates each attack candidate's score and map; attack-engineering changes therefore do not define the reported spatial outcome. This checks a likely gradient-obstruction failure mode, but does not make a one-image result representative.
+
+In that one-image native TextDiffuser check, $E$ fell .755468$\rightarrow$.052624 after one $0.25/255$ physical step; the forged score remained above the threshold at .976692$\rightarrow$.850684. Its clean DCEC status and RRA response have not been verified. The 1,330-image clean DC roster is fixed: Digital-1 153, Digital-2 135, Digital-3 786, FaceDancer 107 and TextDiffuserFT 149. A run-progress snapshot records 416 completed before a later execution phase, but contains only scheduling and image properties, not pairs of final attacked $E$/RRA and scores. It is not a random sampled scientific outcome or a denominator for a success rate. Full multi-step result validation remains outstanding.
+
+\begin{table}[htbp]
+\centering\small
+\caption{TruFor attack evaluation to insert after verifying final outputs. ``Pending'' is an explicit missing result, not a zero. Clean DC counts do not imply DCEC eligibility.}
+\label{tab:app-adv-trufor-fill}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Family & DC $n$ & Final evaluated $n$ & Forged retained & Mean clean$\rightarrow$adv $E$ \\
+\midrule
+Digital-1 & 153 & Pending & Pending & Pending \\
+Digital-2 & 135 & Pending & Pending & Pending \\
+Digital-3 & 786 & Pending & Pending & Pending \\
+FaceDancer & 107 & Pending & Pending & Pending \\
+TextDiffuserFT & 149 & Pending & Pending & Pending \\
+\midrule
+Total & 1,330 & Pending & Pending & Pending \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This table needs an accompanying paired RRA distribution, zero/invalid-map count, uncompleted or excluded-image register, visual examples, and the separately calibrated DCEC transitions before it can answer the principal question. If any attack calculation fails, keep the image in the original eligible denominator and identify the failure separately. A missing gradient or time-out should not be reported as resistance.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{TruFor attack risks and present controls. No full-population effect is claimed.}
+\label{tab:app-adv-trufor-risks}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.22\textwidth}>{\raggedright\arraybackslash}p{0.36\textwidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Risk & Mitigation and available evidence & Residual limitation \\
+\midrule
+High-resolution gradient failure looks like resistance & Verified full-size backward route and numerical parity on manageable inputs; independent reference model reports outcomes. & Full-graph parity cannot be measured on the largest image where the original graph runs out of memory. \\
+Pilot mistaken for a family-level result & Identify one image and its exact $E$/score change; keep all 1,330 DC counts visible. & Neither its DCEC membership nor population attack rate is known. \\
+Execution progress biases the sample & Fixed DC roster and frozen ten-step settings; scheduling snapshot treated as operations only. & Final individual outcomes, failures and stem intervals still need verification. \\
+Decision score and localisation map confused & Hard fixed score threshold for preservation; native map $E$ is the loss. & RRA, invalid maps and final family-level score distributions remain unreported. \\
+Metric geometry or clipping changes eligibility & Use annotated union consistently; audit native clipping and common content-coordinate convention before gate. & Review of 108 clipped rectangles, TruFor RRA and DCEC calibration are pending. \\
+Attack works only on floats & Explicitly report continuous input, physical/model scaling and no export/re-JPEG. & Survival through common image export, compression or a service pipeline is unknown. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Final outcome table, uncertainty and visual selection}
+\label{app:adv-reporting}
+
+\begin{table}[htbp]
+\centering\small
+\caption{Required final DC$\rightarrow$DCEC$\rightarrow$DCEW reporting, once clean gate and attacked RRA are evaluated. Complete a separate row for each pipeline, family and split; do not fill from mean $E$ alone.}
+\label{tab:app-adv-final-fill}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.24\textwidth}rrr>{\raggedright\arraybackslash}X@{}}
+\toprule
+Population & Forged & DC & DCEC & Adversarial outcomes within clean DCEC \\
+\midrule
+ResNet / each selected family & Ch.~4 & Ch.~4 & Pending & Retain DCEC: pending; DCEW: pending; flip: pending; invalid: pending. \\
+TruFor / each family & Ch.~4 & Ch.~4 & Pending & Retain DCEC: pending; DCEW: pending; flip: pending; invalid: pending. \\
+Both eligible / each family & Ch.~4 & Both DC & Pending & Report each pipeline's outcomes separately on the same clean documents. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The completed ResNet DC-wide relative $E$ loss already has document-stem intervals, reported in Chapter~\ref{ch:adversarial}. For the remaining outcomes, uncertainty should also resample document stems rather than individual captures. In each resample, keep all included images from sampled stems together; recompute the paired RRA change, the DCEW numerator and the original clean DCEC denominator. Give the interval for each family's conditional transition as well as $N_{\rm DCEC}/n_{\rm forged}$. The interpretation is conditional on the \emph{frozen} gate; repeat the clean-only threshold calibration under stem resampling separately if estimating uncertainty in gate selection. Do not present an RRA or DCEW interval until those calculations exist. The one model seed, model training choices and uncertain annotation edges are additional sources of variation outside a stem-only interval.
+
+For the main chapter, pick paired visual examples by an announced rule \emph{before} choosing attractive panels. From the fixed DCEC set, identify per family an image near the median individual $E$ loss, one near the lower tail (including a failed attack, if present), one with a large loss and preserved decision, and one close to the final clean or adversarial RRA boundary. Show face/text component panels for at least one Digital-2 case. Keep one DC but non-DCEC image as a coverage counterexample. In the shared-image view, show the same document for both pipelines with their own clean and adversarial maps. Every caption should include split, family, clean/attacked $E$ and RRA, forged decisions, the rectangle convention and whether it belongs to DCEC. These examples explain mechanisms and exceptions; they cannot estimate an attack rate. The available 450 ResNet paired overlays are candidates for selection, not human ratings.
+
+\section{Design chronology and remaining interpretation risk}
+
+The $1/255$ ResNet classification budget followed pilots, and the decision-preserving ResNet attack followed the observation that the classification control often erased its positive CAM. The full ResNet attack and a TruFor feasibility image preceded the final joint clean evidence-gate design. This sequence does not invalidate the completed paired DC $E$ changes, but it prevents a claim that every analysis decision was preregistered before all attack outcomes were known. The future clean threshold exercise should mask the attack outcomes during the actual visual coding and gate fitting, log prior analyst exposure honestly, then freeze its values before DCEW reporting. No threshold should be adjusted to secure a particular DCEW rate.
+
+Differences between the pipelines include ResNet training on these forgery families, TruFor's pretrained zero-shot weights, classification calibration, map meaning and resolution, and the size of the clean-correct set. The shared-image intersection reduces the difference in images but does not remove the other differences. Accordingly, report each pipeline's relative change from its own clean accepted evidence, show original-family coverage, and avoid treating a raw between-model percentage as an intrinsic architecture ranking. Reproducibility items such as exact scripts, runs and content digests belong to the separately reserved Appendix D, not to this scientific risk register.

@@ -1,0 +1,155 @@
+\documentclass[12pt,a4paper,oneside]{report}
+
+% Page layout and typography
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{pdflscape}
+\usepackage{caption}
+\onehalfspacing
+
+\usepackage{graphicx}
+\usepackage{pdflscape}
+\usepackage{geometry}
+\usepackage{caption}
+
+% Mathematics
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+
+% Tables and figures
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{float}
+\usepackage{plantuml}
+
+\usepackage{xltabular} % Recommended: handles tabularx + longtable beautifully
+\usepackage{booktabs}   % For \toprule, \midrule, \bottomrule
+
+% Quotations and citations
+\usepackage{csquotes}
+\usepackage[authoryear,round]{natbib}
+\newcommand{\parencite}{\citep}
+\renewcommand{\bibname}{References}
+
+% The chapter uses \parencite. Add the project's bibliography as references.bib.
+% Keeping this conditional allows the document to compile before that file is added.
+\newif\ifbibliographyavailable
+\IfFileExists{references.bib}{%
+  \bibliographyavailabletrue
+}{%
+  \bibliographyavailablefalse
+}
+
+% Links and cross-references (load hyperref late)
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% Inline code used by the methodology chapter
+\newcommand{\code}[1]{\texttt{#1}}
+
+% Prevent isolated heading lines at the foot of a page
+\clubpenalty=10000
+\widowpenalty=10000
+\displaywidowpenalty=10000
+
+%try
+\usepackage{pdflscape}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{geometry}
+
+\newcommand{\yes}{\(\checkmark\)}
+\newcommand{\partialfit}{\(\sim\)}
+\newcommand{\no}{---}
+\usepackage{xltabular}
+\usepackage{pdflscape}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{amssymb}
+\usepackage{pdflscape}
+\usepackage{tikz}
+
+% ------------------------------------------------------------
+% TeXcount configuration
+% ------------------------------------------------------------
+
+% Count words appearing inside table bodies, not only captions.
+% This is needed because the university includes tables.
+%TC:envir table [] otherword
+%TC:envir table* [] otherword
+
+% Count citation keys as citation occurrences rather than ignoring
+% citations completely. See note below about exact citation counts.
+%TC:macro \citep [text]
+%TC:macro \citet [text]
+%TC:macro \parencite [text]
+
+\title{When the Decision Is Right but the Map Is Wrong: Adversarial Robustness of Identity-Document Fraud Detection and Localisation}
+\author{Sush Arora}
+\date{September 2026}
+
+\begin{document}
+
+% \pagenumbering{roman}
+% \maketitle
+\input{00_frontmatter}
+\tableofcontents
+\clearpage
+
+\pagenumbering{arabic}
+
+
+\input{01V7}
+\input{02V4}
+\input{03V7}
+\input{04V5}
+\input{05V1}
+% Methodology chapter supplied as a separate file.
+%\input{03_V2}
+
+% \IfFileExists{references_V3.bib}{
+%   \clearpage
+%   \addcontentsline{toc}{chapter}{References}
+%   \bibliographystyle{plainnat}
+%   \bibliography{references_V3} % Note: Do not include the .bib extension here
+%   \bibliography{ref_ch01}
+% }{
+%   \PackageWarningNoLine{main}{references_V3.bib not found; citations will remain undefined}
+% }
+
+%TC:ignore
+\IfFileExists{ref_ch03_V3.bib}{
+  \clearpage
+  \addcontentsline{toc}{chapter}{References}
+  \bibliographystyle{plainnat}
+  % Combine multiple .bib files with a comma and no spaces
+  \bibliography{ref_ch03_V3,ref_ch01_v1,ref_ch02_V0,ref_ch04_V3,ref_ch_05_V1} 
+}{
+  \typeout{Warning: ref_ch03_V3.bib not found; citations will remain undefined}
+}
+
+% ---- Appendices (one per chapter) ----
+
+\appendix
+\input{app_ch03_V7}
+\input{app_ch04_V3}   % becomes Appendix A
+\input{app_ch05_V1}   % becomes Appendix B
+%TC:endignore
+
+\end{document}
+
+\end{document}

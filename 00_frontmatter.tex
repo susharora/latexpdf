@@ -1,0 +1,131 @@
+% ============================================================
+% 00_frontmatter.tex
+% Front matter for the dissertation.
+% Intended order: title page -> abstract -> declaration ->
+% acknowledgements -> table of contents (called from main.tex).
+% ============================================================
+
+% ---- Edit these only if required ---------------------------------
+\providecommand{\studentid}{U5757978}
+\providecommand{\supervisorname}{Dr Muhammad Ajmal Azad}
+\providecommand{\degreeprogramme}{Master of Science in Cyber Security Engineering}
+
+% Change this filename if your existing WMG/Warwick logo uses a
+% different name in the Images folder. The file still compiles if the
+% image is not found, using a text fallback instead.
+\providecommand{\wmglogofile}{Images/Uni_Logo.jpg}
+
+% ------------------------------------------------------------
+% Title page -- deliberately unnumbered
+% ------------------------------------------------------------
+\pagenumbering{gobble}
+\begin{titlepage}
+    \thispagestyle{empty}
+    \centering
+
+    \vspace*{0.5cm}
+
+    \IfFileExists{\wmglogofile}{%
+        \includegraphics[width=0.52\textwidth]{\wmglogofile}
+    }{%
+        \IfFileExists{Images/Uni_Logo.jpg}{%
+            \includegraphics[width=0.52\textwidth]{Images/Uni_Logo.jpg}
+        }{%
+            {\LARGE\bfseries WMG\par}
+            \vspace{0.15cm}
+            {\large THE UNIVERSITY OF WARWICK\par}
+        }%
+    }
+
+    \vfill
+
+    \makeatletter
+    {\Large\bfseries \@title\par}
+    \makeatother
+
+    \vspace{1.4cm}
+    {\large by\par}
+
+    \vspace{1.1cm}
+    \makeatletter
+    {\large \@author\par}
+    \makeatother
+
+    \vspace{0.75cm}
+    {\normalsize Student ID: \studentid\par}
+
+    \vspace{1.7cm}
+    {\normalsize Supervisor: \supervisorname\par}
+
+    \vfill
+
+    {\normalsize
+    Dissertation submitted in partial fulfilment for the Degree of\par
+    \vspace{0.35cm}
+    \degreeprogramme\par}
+
+    \vfill
+
+    \begin{flushright}
+        WMG\\
+        University of Warwick
+    \end{flushright}
+
+    \vspace{1.2cm}
+
+    \begin{flushleft}
+        \makeatletter
+        Submitted \@date
+        \makeatother
+    \end{flushleft}
+\end{titlepage}
+
+% ------------------------------------------------------------
+% Roman-numbered front matter begins here: Abstract = i
+% ------------------------------------------------------------
+\clearpage
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+\chapter*{Abstract}
+\phantomsection
+% \addcontentsline{toc}{chapter}{Abstract}
+
+% Identity-document fraud detection is a challenging field because forgery can range from small alterations like a single digit in date of birth to complex multi-faceted changes including potrait faces and identity related text fields. 
+% In identity-document fraud detection, there is an increasing use of explainable artificial intelligence to detect forgery and explain the reason of the detection visually. Spatial outputs in the form of localisation maps are used for this purpose, yet a correct document-level decision does not establish that the accompanying spatial evidence identifies the manipulated region. This dissertation investigates whether an attacker with knowledge about the underlying architecture of localisation pipeline, using bounded adversarial perturbations can degrade initially acceptable spatial evidence while preserving the correct forgery decision. Such an attack can weaken trust in the use and reliability of XAI systems and potentially invalidate perfectly valid detection decisions. Two contrasting spacial output generation pipelines are evaluated on identity-document imagery: ResNet-18 with Grad-CAM as a post-hoc attribution approach, and TruFor as a native manipulation-localisation approach.
+
+% The evaluation is organised around a novel three-stage DC--DCEC--DCEW framework. Decision Correct (DC) identifies manipulated images classified correctly before attack. Decision Correct, Evidence Correct (DCEC) retains the subset whose clean spatial maps satisfy joint relevance-mass ($E$) and relevance-rank-overlap (RRA) requirements calibrated from clean development evidence and visual review. Decision Correct, Evidence Wrong (DCEW) then records attacks that preserve the correct decision while causing either evidence requirement to fail. 
+% The study also conducts additional Clean-data audits to examine possible shortcut cues and regional sensitivity, while classification-targeted attacks provide complementary controls. Each pipeline is assessed against its own clean baseline, with uncertainty estimated through document-stem resampling and shared eligible images used as an additional comparison view.
+
+% The study provides a comprehensive analysis of benchmark dataset in ID fraud detection 'FantasyID' dataset and its limitations, identifies the need for newer metrics which can assit in the complex task of ID forgery detection, proposes novel framework of DC-DCEC-DCEW for robustness of detection and localisation pipelines and also highlikghts the need for further creation of datasets which can be used for research purposes and that model the real word scenario's. 
+
+% The study therefore evaluates a distinct reliability risk: spatial forensic evidence can require separate robustness assessment even when the associated forgery decision remains correct. The conclusions are bounded by the selected dataset, model pipelines, spatial criteria and attack configurations, and do not constitute evidence of a verification bypass or of human-review performance.
+\addcontentsline{toc}{chapter}{Abstract}
+
+Identity-document fraud detection is challenging because manipulations can range from small textual changes, such as a single digit in a date of birth, to complex multi-region alterations involving portraits and identity-related text fields. Spatial outputs are used alongside forgery decisions to indicate where manipulation may have occurred. However, a correct document-level decision does not establish that the accompanying spatial evidence identifies the manipulated region. This dissertation investigates whether, under a white-box threat model, bounded adversarial perturbations can degrade initially acceptable spatial evidence while preserving the correct forgery decision. Such an attack can undermine trust in the spatial evidence accompanying an otherwise correct forgery decision. Two contrasting spatial-output pipelines are evaluated on identity-document imagery: ResNet-18 with Grad-CAM as a post-hoc attribution approach, and TruFor as a native manipulation-localisation approach.
+
+The evaluation is organised around a three-stage DC--DCEC--DCEW framework. Decision Correct (DC) identifies manipulated images classified correctly before attack. Decision Correct, Evidence Correct (DCEC) retains the subset whose clean spatial maps satisfy joint relevance mass accuracy ($E$) and relevance rank accuracy (RRA) requirements, with thresholds calibrated using clean development evidence and visual review. Decision Correct, Evidence Wrong (DCEW) then records attacks that preserve the correct decision while causing either evidence requirement to fail. The study also conducts clean-data audits to examine possible shortcut cues and regional sensitivity, while classification-targeted attacks provide complementary controls. Each pipeline is assessed against its own clean baseline, with uncertainty estimated through document-stem resampling and shared eligible images used as an additional comparison view.
+
+The study provides a detailed analysis of the FantasyID dataset and its limitations, demonstrates the value of complementary mass- and rank-based measures for assessing spatial evidence, and proposes the DC--DCEC--DCEW framework for evaluating the robustness of detection and localisation pipelines. It also highlights the need for future datasets that better represent the diversity and complexity of real-world identity-document fraud scenarios.
+
+The study therefore evaluates a distinct reliability risk: spatial forensic evidence can require separate robustness assessment even when the associated forgery decision remains correct. The conclusions are bounded by the selected dataset, model pipelines, spatial criteria and attack configurations, and do not constitute evidence of a verification bypass or of human-review performance.
+\clearpage
+\chapter*{Declaration}
+\phantomsection
+\addcontentsline{toc}{chapter}{Declaration}
+
+I have read and understood the University rules concerning academic integrity, plagiarism and appropriate referencing. I declare that the work presented in this dissertation is my own except where the contribution of others has been clearly acknowledged and referenced.
+
+No substantial part of this dissertation has been submitted by me for assessment on another course or degree, except where this has been explicitly declared in accordance with University requirements.
+
+% If WMG provides mandatory declaration wording for your programme,
+% replace the two paragraphs above with the current official wording.
+
+\clearpage
+\chapter*{Acknowledgements}
+\phantomsection
+\addcontentsline{toc}{chapter}{Acknowledgements}
+
+I would like to thank my parents and my life partner for their patience, encouragement and constant support throughout my studies. I am grateful to my supervisor, \supervisorname, and to the WMG teaching team for their guidance and feedback during the programme and this dissertation.
+
+I also thank my in-laws for their support, and my university friends, with whom the long hours, shared challenges and hard work have created new and valued friendships.

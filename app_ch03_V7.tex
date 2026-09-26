@@ -1,0 +1,169 @@
+% Chapter 3 supporting Appendix D, version 4 (03_AppendixD_V4.tex).
+% 26 September 2026; based on V3, with figure redraw briefs and an updated
+% description of partial TruFor record ingestion. The chapter's figure
+% fallbacks compile even when the optional vector drawings are absent.
+% Place after \appendix and Appendices A--C, and before the attack Appendix E.
+% Requires amsmath, booktabs, tabularx, array and url (for \path).
+% Exact checkpoint identifiers/digests, ethics proof and still-open results
+% are AUTHOR VERIFY fields; do not fill them by guesswork.
+
+\chapter{Method protocol, reproducibility and study-wide risks}
+\label{app:method-details}
+
+This appendix makes Chapter~\ref{ch:methodology}'s analytical choices reproducible without filling the main chapter with file identifiers. Appendix~\ref{app:clean-metrics} specifies the clean-map rating and threshold exercise; Appendices~\ref{app:clean-resnet} and~\ref{app:clean-trufor} hold the pipeline-specific clean decisions; Appendix~\ref{app:adv-details} holds attack-specific checks and result templates. The rules here apply across those sections. ``Pending'' means that the procedure is specified but the evidence or calculation has not yet been verified.
+
+\section{Population and coordinate conventions}
+\label{app:method-population}
+
+Use the public FantasyID open training release for the internal 160-stem project-train / 51-stem project-development separation. Link same-card captures by the dataset card stem \emph{before} splitting. Record image filename, full stem, source device, bona-fide/forged status, manipulation family and split in the working manifest. The project development release of 459 images is an internal split of the 1,899-image open training release. Do not label it the dataset's separately restricted validation release. Reserve the official test as a different image and manipulation-family source, while retaining the documented Digital-3 card-parent overlaps. The Digital-3 audit has 480 project-train parents, 153 project-development parents and 153 images without a matching parent; this does not establish the identity relations of FaceDancer or TextDiffuserFT.
+
+Every manipulated image has one mask $M$ formed by the union of its annotated altered rectangles after conversion to the relevant raster and clipping to valid pixels. If there are both face and text boxes, keep component masks as well as their union; do not double-count overlapping pixels. Define $\Omega$ as the actual document content on the working raster. For ResNet this is the resized content of the $512\times864$ canvas and excludes its zero-normalised horizontal padding. For TruFor it is the native image grid. Pixel counting and top-$|M|$ selection take place inside $\Omega$. For each tested map, save the transformed rectangles, $|M|$, $|\Omega|$, map-validity flag, $E$, RRA, PG and any tie diagnostic with the per-image record. Native rectangles need a review of 108 clips before the clean TruFor gate is claimed. If comparisons use a common display grid, keep the evaluation grid and interpolation rule stated separately from the illustrative resampling used to draw a figure.
+
+\section{Preparation and model construction}
+\label{app:method-preparation}
+
+Policy C has two real JPEG operations with a decode between them: source-JPEG decode to RGB, encode at Q75/4:2:0, decode to RGB, encode at a deterministic matched final Q from 50--90/4:2:0, and decode the resulting file for a model. The assignment key is card stem plus capture source, so bona-fide and forged views of the same capture get the same final quality. Document the actual function used to assign Q and the cache manifest when making a reproduction package. JPEG-feature logistic-regression probes were fitted to project-training labels and measured on stem-distinct project-development labels before and after this control. Direct final-JPEG tables, broader history and the combined set are \emph{distinct} feature sets. Report the class priors and the particular AUROC for each rather than claiming that all compression information disappeared.
+
+The final ResNet training uses ImageNet-1K V1 initialisation, three frozen-backbone classifier-head epochs, then twelve end-to-end epochs. The recorded run uses seed 10, inverse-frequency class weights 1.5 (bona fide) and .75 (forged), AdamW weight decay .01, backbone learning rate $10^{-4}$ and head learning rate $10^{-3}$. Select by project-development AUROC; the recorded selected full epoch is 12. These training settings specify the observed run, not a hyperparameter search with an independent validation set. The image height is 512 with original aspect ratio and central placement into 512$\times$864; actual RGB uses the ImageNet mean and standard deviation, while the artificial side areas have zero value in the \emph{normalised} tensor. The Grad-CAM target is the forged-minus-bona-fide logit at \path{layer4[-1]}; apply ReLU and divide by the positive map maximum if one exists, then interpolate to the full canvas. Measure spatial agreement within the document content only. Record the empty-positive-map case separately.
+
+The final TruFor protocol retains its released weights. A cached Policy-C JPEG decodes to uint8 RGB, which is converted to model input by $\mathrm{uint8}/256$. The manipulated-class probability of the native per-pixel softmax supplies the map; the separate sigmoid detector supplies the image score. A single detector cut-off $0.5329559743404388$ was fitted for pooled image accuracy using 306 forged and 153 bona-fide project-development examples. The same cut-off is then used for every family and source, with no family-specific recalibration. Any resumed weights, alternate dev partition or older fine-tuned EP28 trial belongs to a separately labelled exploratory record.
+
+\section{Auditable analysis rules}
+\label{app:method-analysis}
+
+\subsection{Clean coverage and the joint gate}
+
+For every pipeline, split and forged family, log the original family size $n_f$; the number called forged at the fixed clean decision threshold $n_{\rm DC}$; the number with valid clean masks and maps; and, when calibrated, $n_{\rm DCEC}$. Retain bona-fide correct and incorrect counts separately for detection measures. Do not reduce the denominator of a detection rate because a forged map is invalid. Use the same two-threshold AND rule on all relevant images for a given pipeline. The \emph{procedure} for fitting the two thresholds is shared across pipelines; the numerical values need not match.
+
+\begin{enumerate}
+    \item Finish and lock the clean-development author coding table, preserving reviewer instructions, masked IDs, displayed panels, field-level 0/1/2 ratings and reasons for ambiguous images. Declare how those ratings become a binary visual reference, including the treatment of mixed face/text ratings, \emph{before} joining metrics to labels.
+    \item Verify clean $E$/RRA on a consistent region and raster convention, examine top-$K$ ties and clipped rectangles, and state the candidate grid and its tie-break rule. Select the pair that best fits the clean author reference by the declared balanced-accuracy criterion. This is within-development fitting, not external validation.
+    \item Inspect sensitivity to annotation dilation, component imbalance, stem-resampled recalibration and a few neighbouring candidate thresholds. Record the date, chosen thresholds, reviewed population and analyst exposure in a gate-freeze record. The ResNet attack was already measured at the DC level when this rule was designed; that chronology must be disclosed.
+    \item Apply the \emph{frozen} thresholds to all relevant clean DC images and create the fixed DCEC ID lists. Only then join attacked per-image records and compute DCEW. If the clean calibration is too unstable to defend a binary gate, describe continuous paired changes and the instability instead of reporting a precise conditional transition percentage.
+\end{enumerate}
+
+Examples of candidate $E$ and RRA threshold grids are in Appendix~\ref{app:clean-metrics}; none is a frozen cut-off here. An empty altered region, undefined rank, non-finite map or zero positive map cannot pass the clean joint gate. For attacked maps, state a primary convention for decision-preserved invalid maps \emph{before} scoring and give a sensitivity table that keeps them separate. Do not set their continuous $E$ to zero and merge them silently with well-defined, low-$E$ maps. Record the number of tested eligible images that have no completed attack, since an unrun gradient step does not establish resistance.
+
+\subsection{Decision-preserving search: executable pseudocode}
+
+The following is pseudocode for the evaluated \emph{method}, not a claim that all proposed TruFor outcomes have been validated. \texttt{AttackGradient} differentiates the attack map. \texttt{CandidateCheck} tests the fixed decision and objective $E$ before accepting a step. For ResNet it uses the differentiable Grad-CAM objective, whose omitted positive max-normalisation cancels in $E$; the final result is checked with the ordinary clean Grad-CAM routine. For TruFor the candidate and final checks use a separate unmodified model instance. $C$ is the valid physical-RGB pixel support and $T_m$ is that model's fixed forged decision threshold. $\operatorname{Project}$ clips to RGB $[0,1]$, to the clean-centred $1/255$ box and to the immutable ResNet padding when present.
+
+\begin{quote}\footnotesize\ttfamily
+input clean image z0, reference mask M, model m, valid support C\\
+current = z0; (score, E, valid) = CandidateCheck(m, current, M)\\
+require forged decision at threshold T\_m; record clean map validity\\
+if map is zero or invalid: mark the clean map outside DCEC;\\
+\quad log any DC-wide search under its checked implementation convention\\
+for t = 1,...,10:\\
+\quad g = AttackGradient(m, current, M) through chosen map\\
+\quad proposal = Project(current - (0.25/255)*sign(g), z0, C)\\
+\quad if CandidateCheck(m, proposal).decision is not forged:\\
+\qquad lo = current; hi = proposal\\
+\qquad repeat 8 times: mid = (lo + hi)/2;\\
+\qquad\quad if CandidateCheck(m, mid).decision is forged: lo = mid\\
+\qquad\quad else: hi = mid\\
+\qquad proposal = lo\\
+\quad (newscore, newE) = CandidateCheck(m, proposal, M)\\
+\quad if decision forged and newE is valid and newE <= E + 1e-8:\\
+\qquad current = proposal; E = newE\\
+save current; ReferenceEvaluate verifies decision, E, map validity, bound\\
+when paired RRA is implemented, evaluate it with the frozen gate
+\end{quote}
+
+The sign and $0.25/255$ step refer to physical RGB. On ResNet, divide the per-channel RGB step and norm bound by its ImageNet standard deviation to perform the equivalent projection in the network tensor; restore padding unchanged. Because its CAM uses a first derivative, the $E$ image gradient requires higher-order differentiation. On TruFor, the model tensor is $x=z\,255/256$: its equivalent bounds are $1/256$ and $0.25/256$. Its full-image gradient uses activation recomputation and mathematically exact query-chunked attention rather than independent tiles. The separate TruFor reference model evaluates each candidate score and map. No extra score margin or score-drop tolerance is part of the feasibility rule in either arm. RRA, face/text components and PG are post-attack assessments, not terms in the attack loss.
+
+ResNet's classification-targeted control is a different projected-gradient search: target bona fide with cross-entropy, use one random start within the same physical $1/255$ box, then ten $0.25/255$ steps. It is assessed against the initial clean decision, and cases already misclassified are kept visible. It cannot contribute to a decision-preserving DCEW numerator. A TruFor classification control and any additional perturbation budgets must be labelled as separate experiments when completed.
+
+\subsection{Counting, uncertainty and images}
+
+With $N_m=|\mathrm{DCEC}_m|$ fixed from \emph{clean} images, classify each eligible image in order: (1) no complete attack result; (2) final decision flipped, recording map validity as a separate flag; (3) decision preserved but map invalid; (4) decision preserved with valid map and failed evidence rule, $n_{\rm DCEW}$; or (5) decision preserved with valid map and passing rule, $n_{\rm stay}$. These \emph{exclusive} dispositions must sum to $N_m$. The main conditional attack fraction is $n_{\rm DCEW}/N_m$, alongside $N_m/n_f$ and absolute counts. An alternate tally counting decision-preserved invalid maps as evidence failures should reveal how much that choice matters; a flipped decision never counts as DCEW. For each same-document pair retain $E_{\rm clean}$, $E_{\rm adv}$, RRA on both when available, decision scores, validity flags and signed change; if $E_{\rm clean}=0$, relative change is undefined and must not be divided by zero.
+
+For a 95\% interval on a fixed family/pipeline statistic, resample card stems with replacement, retain all associated image pairs for a sampled stem and recompute the statistic on each replicate. Indicate the interval construction and number of replicates in the final reproduction record. A stem bootstrap respects repeated captures, but it neither resamples the classifier's single seed nor corrects a biased family selection. For an interval on a DCEW proportion, keep the clean gate fixed and resample both numerator and eligible denominator; repeat the \emph{clean-only threshold fitting} in a distinct sensitivity analysis if uncertainty in $\tau_E,\tau_R$ is needed. Do not fabricate a confidence interval when $N_m$ or attacked RRA does not yet exist.
+
+Select illustrative overlays from the frozen sets by an announced rule: a case near median change, a low-change or unsuccessful case, a high-change decision-preserved case and a threshold-borderline case. Include a DC-but-not-DCEC map to show lost coverage, a two-component face/text example and at least one shared-image example if that intersection exists. Keep clean/attack maps on the same displayed colour scale where interpretation depends on intensity, and give numerical $E$/RRA, clean/attacked decision, family, split, mask and membership in the caption. These panels are examples, not evidence of the population frequency.
+
+\clearpage
+\section{Method-wide risk register}
+\label{app:method-risks}
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Study-wide design risks. A completed check and a proposed check are distinguished; the right column states what the check cannot settle. More specific decisions remain in Appendices B, C and E.}
+\label{tab:app-method-risks}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{.21\textwidth}>{\raggedright\arraybackslash}p{.38\textwidth}X@{}}
+\toprule
+Risk & Action and observed status & Remaining risk \\
+\midrule
+Class-correlated JPEG history & Measured logistic probes before and after Policy C; matched final Q by stem/source; final-table AUROC .500. & Combined features still yield .586; re-encoding may hide authentic manipulation traces. \\
+Related card captures inflate independence & Completed stem separation of internal train/dev; stem resampling for paired intervals; audited Digital-3 parent overlaps. & Official-test Digital-3 includes parents in internal sets; other-family identity relations are not asserted. \\
+Poor clean decisions distort an attack headline & Report original forged count, clean DC, DCEC and attack outcomes by family; no DCEW label for a clean wrong decision. & ResNet's Digital-3 and TextDiffuser clean coverage is low; conditional results have a narrow scope. \\
+Broad mask or one large face field hides text misses & Measured area, mass and face/text components where available; planned joint rank gate and visual coding. & Rectangle boundaries, resolution and union dominance persist; TruFor RRA/common-coordinate audit is pending. \\
+Gate fitted after some attacks & Mask per-image attack results from remaining clean review; select thresholds on development clean data; record decision chronology. & The researcher has already seen aggregate effects; selection is not fully preregistered or independent. \\
+Spurious robustness from broken gradients & ResNet higher-order derivatives and frozen final checks; TruFor parity and full-image feasibility checks completed. & TruFor full paired results are unverified; one start/ten steps cannot establish a worst-case bound. \\
+Decision flip mistaken for displaced map & Separate ResNet classification-targeted control and individual decision guard; check map validity. & No verified full TruFor classification control at this revision. \\
+Benchmark effect treated as deployment effect & State GT-aware white-box access, processed-input norm bound, native/resized difference and continuous-float evaluation. & Effect after uint8 quantisation, fresh JPEG, camera recapture or on real IDs has not been established. \\
+Selective examples or underestimated uncertainty & Predefine panel types; keep per-stem paired records and stem-cluster intervals. & One model seed, post-hoc diagnostics and annotation uncertainty lie outside a fixed-gate stem interval. \\
+Dataset and ethics provenance not fully recorded & Fictional dataset and author-only coding described; approval/storage fields left for evidence check. & WMG approval/waiver, storage practice and training/confirmation documents must be verified before submission. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Reproducibility index and unfinished work}
+\label{app:method-repro}
+
+The study uses public Python-based ResNet/Grad-CAM and TruFor implementations, image and JPEG decoders, and the recorded model checkpoints. A reader needs the \emph{actual} software versions, device record, file manifests and selected checkpoints, not just algorithm names. Table~\ref{tab:app-method-provenance} is a map to the current scripts in the two project repositories. Verify each path, run log and chosen artefact against the final dissertation submission before fixing an immutable version. Do not place digest values in the main thesis narrative; a complete digest/identifier manifest may be attached to this appendix or supplied as a linked reproducibility inventory.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{Sources for a final reproducibility manifest. Paths are project-relative and need a checked commit/run link before submission. A path is evidence of implementation, not proof that a later experimental result has finished.}
+\label{tab:app-method-provenance}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{.22\textwidth}X>{\raggedright\arraybackslash}p{.25\textwidth}@{}}
+\toprule
+Decision or artefact & Script or result source to verify & Evidence currently available \\
+\midrule
+Card split and ResNet fit & \path{scripts/train_resnet18_policy_c.py}; selected-epoch training log. & Split assertions and selected full epoch recorded. \\
+Policy-C preparation and compression probes & \path{scripts/prepare_policy_c_cache.py}; \path{scripts/compression_leakage.py}; \path{scripts/check_policy_c_leakage.py}. & Two-stage JPEG rule and probe scores recorded. \\
+Clean ResNet Grad-CAM & \path{scripts/eval_resnet18_gradcam_clean_rma.py}. & DC-wide per-image clean audit; final joint pass rule pending. \\
+Clean TruFor evaluator and score cut-off & \path{scripts/trufor/trufor_common.py}; \path{scripts/trufor/03_calibrate_dev_threshold_accuracy.py}. & Native evaluator and global decision threshold recorded. \\
+Shared-card Digital-3 audit & \path{scripts/audit_digital3_same_source.py}. & Parent-overlap counts; not a wholly unseen-card family. \\
+ResNet decision-preserving visual run & \path{scripts/eval_resnet18_localisation_attack_preserve_cls_full_with_visuals.py}; corresponding final visual log and per-image records. & 450 validated pairs; avoid mixing with earlier run. \\
+TruFor attack protocol and execution & \path{scripts/trufor/trufor_adversarial_attack_common.py}; frozen attack configuration, Phase-A records and reference-evaluator logs. & Gradient parity/one-step feasibility checked; partial records ingested; full paired outcome pending. \\
+Gate, ratings and final reporting & Dated rating sheet, mask-coordinate audit, gate-freeze record and final paired-score table: \textbf{[AUTHOR VERIFY]} & No frozen E/RRA pair or DCEW result yet. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[htbp]
+\centering\small
+\caption{Checks needed before the finished dissertation can claim the full conditional answer. ``Pending'' is not a measured zero.}
+\label{tab:app-method-open}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{.34\textwidth}X@{}}
+\toprule
+Question & Present status / completion criterion \\
+\midrule
+Are clean maps acceptable under a defendable rule? & Author face/text coding underway; validate TruFor RRA/native boxes and common coordinates, record the clean-development gate choice and robustness checks, then publish DCEC coverage. \\
+Does TruFor's ten-step attack change evidence at scale? & One-step full-image feasibility verified; evaluate and audit \emph{all} selected per-image pairs or label each missing case and its cause. \\
+Do clean-eligible maps cross into DCEW? & Join only a frozen DCEC roster to attacked E/RRA, scores and valid-map flags; give absolute counts, conditional rates and coverage for each family. \\
+What does the same-image view show? & Compute the intersection of both clean DCEC rosters; report a separate within-model change for each pipeline on those images and show rule-selected panels. \\
+Are approval and outputs reproducible? & Insert checked WMG approval/waiver and real data-management record; freeze final code/results/weights manifest with identifiers. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{sloppypar}\noindent\textbf{[AUTHOR VERIFY REPRODUCIBILITY INVENTORY: repository/commit for each final code route; exact checkpoint and model weights; Python/library and JPEG-library versions; GPU/precision; stem split manifest; random seeds; Policy-C quality assignment; final ResNet visual run and complete TruFor run identifiers; paired-result row counts; any checksum/SHA256 values; and data-access licence or dataset version. Give sensitive or bulky identifiers in a linked manifest here rather than throughout Chapters 3--5.]}\end{sloppypar}
+
+\section{Redraw briefs for the three Chapter 3 figures}
+\label{app:method-figures}
+
+Chapter~\ref{ch:methodology} contains typeset fallback figures, so the source
+compiles without separate artwork. For a final vector drawing, replace each
+fallback with the optional same-named PDF while retaining its caption and
+label. These briefs also state what a new drawing must avoid implying.
+
+\begin{sloppypar}
+\begin{enumerate}
+    \item \textbf{Eligibility and outcomes.} Figure~\ref{fig:method-eligibility}; optional file \path{Images/CH03_Eligibility_V3.pdf}. Draw a left-to-right flow from all forged images to the subset with a correct clean decision (DC), then to the subset meeting \emph{both} clean $E$ and RRA thresholds (DCEC). Branch the \emph{fixed} DCEC denominator into incomplete run, changed decision, preserved decision with invalid map, preserved decision with failed evidence gate (DCEW), and preserved decision with passing gate. Show counts as symbolic $n$ values, since the clean gate is not frozen. Note below the diagram that this is the order of \emph{analysis}, whereas some attacks preceded gate design.
+    \item \textbf{Data and Policy C.} Figure~\ref{fig:method-policy}; optional file \path{Images/CH03_Data_PolicyC_V3.pdf}. At the top show the 1,899-image open training release branching to project train (1,440 images, 160 stems) and internal development (459 images, 51 distinct stems). Keep the separate 1,385-image official test alongside; mark that 633 Digital-3 test edits have a card/capture parent in project train or development. Below show source JPEG decode $\rightarrow$ Q75/4:2:0 encode $\rightarrow$ decode $\rightarrow$ stem/capture-matched final Q50--90/4:2:0 encode $\rightarrow$ decode. From the shared prepared image split into ResNet's resized/padded transform and TruFor's native-raster transform. Never label the official test identity-disjoint.
+    \item \textbf{Attack arms.} Figure~\ref{fig:method-arms}; optional file \path{Images/CH03_Attack_Arms_V3.pdf}. Draw parallel branches from the prepared forged image. ResNet's branch changes document-content pixels on a $512\times864$ canvas, differentiates through forged-class Grad-CAM and checks logit margin $\geq0$; TruFor's branch changes native pixels, differentiates through its manipulation map and checks image score $\geq0.532956$. Beneath both put the common physical RGB $L_\infty$ budget $1/255$, ten $0.25/255$ steps, eight feasibility bisections if needed, and a final reference-evaluator check. Draw RRA as an \emph{afterwards} measurement. Label the completed ResNet DC sample $n=450$ and TruFor's frozen DC roster $n=1{,}330$ as populations, with TruFor full paired result pending. Do not portray either as DCEC or DCEW.
+\end{enumerate}
+\end{sloppypar}

@@ -1,0 +1,151 @@
+% Chapter 5, version 1 (05V1.tex), 23 September 2026.
+% Requires amsmath, graphicx, booktabs, tabularx, array and natbib.
+% Companion scientific figure: Images/CH05_ResNet_LossDistribution_V1.pdf.
+% Insert as Chapter 5 before the appendix sequence. The companion
+% 05_AppendixV1.tex occupies Appendix E; Appendix D is reserved.
+% IMPORTANT: No numeric DCEC-to-DCEW rate can yet be stated. The joint
+% E/RRA clean gate and paired RRA evaluation are still unfinished.
+
+\chapter{Adversarial Evaluation of Spatial Evidence}
+\label{ch:adversarial}
+
+\section{What is being tested}
+\label{sec:adv-question}
+
+Chapter~\ref{ch:clean} established that a correct forgery decision does not always come with a useful map. This chapter examines a different failure: whether a small, deliberate change to an image can make its map agree less with the annotated alteration while the detector still calls the image forged. The perturbation is applied \emph{after} the forgery and after the controlled JPEG preparation. It does not repair or move the alteration.
+
+The analysis begins with DC, the forged images that each pipeline called correctly before the extra perturbation. On these images, the paired change in relevance mass $E$ measures how much of the map falls inside the annotated region before and after the attack. The stricter outcome in the research question starts with DCEC: images that also have acceptable \emph{clean} spatial evidence under the joint $E$/RRA rule. An image becomes DCEW only when it was in that fixed DCEC set, its forged decision remains correct, and its adversarial $E$ \emph{or} RRA falls below the original evidence threshold. A classification flip is a separate outcome and stays in the DCEC denominator. Appendix~\ref{app:adv-details} gives the recording rules.
+
+The full ResNet-18/Grad-CAM attacks have been run on 450 DC images. They give a substantial paired result for $E$ and a useful classification-attack control. TruFor's attack settings have been frozen and its full run is in progress; an exact native-resolution gradient route and a one-image attack check have been completed. The clean human review, joint $E$/RRA thresholds and paired RRA results still need to be completed for both pipelines. For that reason, this chapter reports the measured DC results and leaves visible markers for the final DCEC-to-DCEW rates. It does not turn a fall in mean $E$ into an unmeasured binary success rate.
+
+The attacks are white-box: they use the model's gradients and the altered-region annotations to seek a low $E$. This tests what is possible under a deliberately informed attacker. It is stronger access than a typical document submitter would have; the results concern these evaluated pipelines, not an observed attack on a live verification service. Work on explanation attacks shows why holding the label fixed matters, while document-localisation attacks provide a related, but different, forensic precedent \citep{ghorbani2019fragile,dombrowski2019explanations,shao2025documentrobustness}. Here loss of \emph{annotation agreement}, rather than mere visual difference between maps, is the measured outcome.
+
+\section{Attack population and controls}
+\label{sec:adv-population}
+
+Table~\ref{tab:adv-populations} starts from the clean decisions reported in Chapter~\ref{ch:clean}. Each family is counted separately. ResNet's primary attack families were chosen after the clean audit: Digital-1, Digital-2 and FaceDancer had enough correct decisions and interpretable clean map agreement to examine degradation. Digital-3 had only 6/786 correct ResNet forgery decisions and near-zero clean $E$; TextDiffuserFT had 32/149 correct decisions and mean $E=0.010$ on those DC images. Calling further loss of their already poor evidence an adversarial explanation failure would obscure the more basic clean failure. This selection limits coverage and must remain visible alongside the attack result.
+
+TruFor's DC population is larger, but DC does not tell us how many maps will pass the eventual joint evidence rule. Its weak clean Digital-2 and FaceDancer map agreement is a particular reason to retain DCEC coverage by family. The two models operate at their previously selected decision thresholds: attack probability $0.5$ for ResNet and forged score $0.532956$ for TruFor. These thresholds remain fixed after seeing attack outcomes. Their image sizes, training exposure and map types also differ, so the main comparison is an attacked image against its \emph{own pipeline's} clean map, not an unqualified contest between models.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Forged images entering the adversarial analysis. DC counts are clean, correct decisions; they do not establish DCEC eligibility. ResNet's primary decision-preserving attack covers its three indicated families.}
+\label{tab:adv-populations}
+\begin{tabular}{@{}llrrl@{}}
+\toprule
+Split & Forgery family & Total & ResNet DC & TruFor DC \\
+\midrule
+Dev & Digital-1 & 153 & 153 & 153 \\
+Dev & Digital-2 & 153 & 153 & 135 \\
+Test & Digital-3 & 786 & 6 & 786 \\
+Test & FaceDancer & 150 & 144 & 107 \\
+Test & TextDiffuserFT & 149 & 32 & 149 \\
+\midrule
+ & DC roster for evidence attack & & $450^{\dagger}$ & $1{,}330^{\ddagger}$ \\
+\bottomrule
+\end{tabular}
+
+\vspace{2pt}\parbox{\linewidth}{\footnotesize $^{\dagger}$Digital-1, Digital-2 and FaceDancer, completed. $^{\ddagger}$Frozen TruFor run roster across all five families; full population outcomes pending.}
+\end{table}
+
+Across these development and test splits there are 1,391 forged images. ResNet called 488 of them correctly, but its primary evidence attack covers 450, or 32.4\% of all 1,391. This is partly a consequence of poor clean detection on Digital-3 and TextDiffuserFT, not an adversarial exclusion chosen after seeing their attacked maps. TruFor's 1,330 clean-correct cases cover 95.6\% of all forgeries, although many may still have weak clean spatial evidence. These figures are useful coverage checks, not a like-for-like robustness score. Two ResNet attacked families are development families used in model selection; FaceDancer supplies the selected pipeline's principal unseen-family attack result.
+
+Both evidence-directed attacks minimise $E$ within the union of the annotated altered regions while requiring the forged decision to remain correct. They use the same bound on changes to the RGB image, $\lVert\delta\rVert_\infty\leq1/255$ in $[0,1]$ units. Ten proposed gradient steps use a step size of $0.25/255$ and an eight-step feasibility pull-back when a proposal would cross the decision boundary. The attacks begin at the clean input without restarts. The unchanged Policy-C image is the baseline; no new crop or JPEG stage is applied during attack evaluation. For ResNet, only resized document-content pixels can change: its artificial side padding stays fixed. TruFor uses its full native-resolution document without padding. The precise model-space conversions and acceptance rules are in Appendix~\ref{app:adv-details}; an $L_\infty$ bound alone is not a perceptual study.
+
+The ResNet classification-targeted PGD control asks a separate question: can a small perturbation change the \emph{decision} to bona fide? Its result is necessary for interpreting Grad-CAM. When the attack-class decision disappears, a heatmap calculated for that class may also disappear; that cannot be counted as a decision-preserving spatial-evidence failure. This distinction follows the evaluation caution in \citet{carlini2019evaluating}: the attack and success condition must match the property being claimed.
+
+\section{ResNet: the classification-attack control}
+\label{sec:adv-resnet-control}
+
+The classification control evaluated 456 images at the $1/255$ bound: 153 Digital-1, 153 Digital-2 and all 150 FaceDancer images. It pushed the score toward bona fide with ten projected steps and a random start. Among the 450 initially correct decisions, all 153 Digital-1, 153 Digital-2 and 144 FaceDancer decisions flipped. The six other FaceDancer images were already misclassified and are excluded from the conditional flip rate and the paired map-loss figures below.
+
+Grad-CAM's $E$ also fell among these clean-correct images: the mean per-image relative losses were 66.75\%, 97.72\% and 86.70\%, respectively. Yet the manipulated-class CAM had effectively zero positive mass on 30.7\% of Digital-1, 96.7\% of Digital-2 and 86.1\% of FaceDancer adversarial images. The evaluator records $E=0$ for such maps. It would be misleading to interpret those low $E$ values as evidence being directed toward the wrong part of a forged document: the forged classification was gone, and in many cases its positive map was gone too.
+
+Three 72-image PGD pilots at $4/255$, $2/255$ and $1/255$ each flipped all 70 images that were initially correct; two FaceDancer cases were already wrong. The full control then used the smallest of these \emph{tested} conventional intensity-level budgets. No finer budget was tested, so the data do not locate a minimum perturbation at which decisions start to fail. They do show why the main evidence attack must enforce the original decision and check that its map remains defined.
+
+This control has a practical implication for how the results should be read. At the tested bound, a white-box attacker targeting these selected ResNet images could simply seek a wrong forgery decision. The evidence-directed attack asks what can happen when the decision is \emph{held} correct and a person might still inspect its map. Neither result says how often an uninformed submitter could achieve that condition or whether a downstream system would accept the altered file.
+
+\section{ResNet: reducing evidence while preserving the decision}
+\label{sec:adv-resnet-evidence}
+
+The evidence-directed ResNet attack differentiates through Grad-CAM and seeks to move map mass away from the annotated union. It maintains the forged-minus-bona-fide logit margin at or above zero and only accepts a feasible proposal if $E$ does not increase beyond a small numerical tolerance. The same frozen evaluator measured clean and adversarial maps after attack. All 450 final outputs stayed on the forged side of the decision threshold, all had nonzero positive CAM mass, and all 450 had strictly lower final $E$ than their corresponding clean images. That last observation is an evaluated end result; the optimisation rule does not demand strict improvement at \emph{every} accepted step.
+
+Table~\ref{tab:adv-resnet-e} reports the most recent full visual rerun, consistently for all three families. The table pairs exactly the DC images that entered the attack. Its FaceDancer clean $E=0.4940$ therefore differs from Chapter~\ref{ch:clean}'s all-150 mean of $0.4888$. The column headed ``relative loss'' is the mean of each image's $100(E_{\rm clean}-E_{\rm adv})/E_{\rm clean}$, not the percentage formed by dividing the two displayed family means.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Completed ResNet decision-preserving attack on paired DC images. $E$ and PG are clean$\rightarrow$adversarial; relative loss averages image-wise losses. All attacked decisions remained forged and all adversarial CAMs were nonzero.}
+\label{tab:adv-resnet-e}
+\begin{tabular}{@{}lrrrrl@{}}
+\toprule
+Family & DC $n$ & Mean $E_{\rm clean}$ & Mean $E_{\rm adv}$ & Relative loss & PG, clean$\rightarrow$adv \\
+\midrule
+Digital-1 & 153 & .7066 & .1458 & 79.24\% & 1.000$\rightarrow$.673 \\
+Digital-2 & 153 & .5460 & .1004 & 81.22\% & .523$\rightarrow$.235 \\
+FaceDancer & 144 & .4940 & .0226 & 95.12\% & .722$\rightarrow$.000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Stem-resampled 95\% intervals for the mean per-image relative loss are [77.86\%, 80.59\%] for Digital-1, [78.75\%, 83.67\%] for Digital-2 and [92.97\%, 96.84\%] for FaceDancer. These intervals respect repeated images from the same document stem. They describe variation from sampling stems within these selected DC populations; they do not include retraining the model, changing the rectangles or uncertainty about the later DCEC gate.
+
+\IfFileExists{Images/CH05_ResNet_LossDistribution_V1.pdf}{%
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.90\textwidth]{Images/CH05_ResNet_LossDistribution_V1.pdf}
+\caption{Individual relative falls in annotated-region $E$ on the 450 paired DC images. Each dot is one image; boxes show median and interquartile range, and whiskers the 10th--90th percentiles. These are DC-wide $E$ changes, not DCEC-to-DCEW outcomes.}
+\label{fig:adv-resnet-e}
+\end{figure}
+Figure~\ref{fig:adv-resnet-e} shows the spread hidden by family means. FaceDancer's median individual loss was 99.6\%, but one image lost less than 1\% of its clean $E$. The attack changed every map's $E$ in the intended direction; the size of the change still varied.
+}{}
+
+For Digital-1, mean $E$ fell from .7066 to .1458 while the correct decision was retained on all 153 images. Its Pointing Game (PG) score, which checks only the location of the strongest map point, fell from 1.000 to .673. This difference matters: a maximum can still land in the altered area even when most relevance is elsewhere. On Digital-2, the mean was .5460 before and .1004 after attack. Its PG score fell from .523 to .235, though the clean result was already face-dominated: Chapter~\ref{ch:clean} found little map mass on the altered text. Lower union-level $E$ cannot by itself show which field a reviewer would now overlook.
+
+FaceDancer gives the strongest observed relative decrease. On its 144 clean-correct documents, mean $E$ moved from .4940 to .0226 and PG from .722 to zero, with all 144 forged decisions preserved. Thus the classifier still gave the warning on these images while its Grad-CAM no longer put its single highest point in the annotated alteration on any of them. The result is stronger than saying the maps merely look different. It is also narrower than saying all 150 FaceDancer forgeries became misleading: six did not qualify as DC, and some of the remaining 144 may not pass the eventual clean DCEC rule.
+
+The mean adversarial forged probabilities remained .920, .841 and .909 for Digital-1, Digital-2 and FaceDancer. These are reassurance that the final images were generally not balanced exactly on the decision line, but the individual decision check, rather than a family mean, establishes preservation. The visual rerun produced paired clean and attacked overlays for all 450 DC images. Producing panels is an audit aid; it is not a blinded judgment that a human examiner would make a worse decision. A figure-selection rule is given in Appendix~\ref{app:adv-details} so later examples can show typical changes and counterexamples rather than only the most striking heatmaps.
+
+The plot gives a second caution about averages. Individual FaceDancer losses were strongly concentrated near the top of the scale, while at least one was small; a large mean does not mean the search succeeded equally for every image. The three populations also have different clean map strengths and altered-area sizes. Dividing by each image's own clean $E$ makes the relative change readable, while absolute paired $E$ and the original DC counts keep it grounded. Reporting only a percentage loss would hide whether the starting map had much annotated-region mass to lose.
+
+These findings support one concrete claim: at this fixed budget and under annotation-aware white-box access, the evaluated ResNet classifier can remain correct while its Grad-CAM agreement with altered regions becomes much weaker. They do not establish a worst-case degradation over restarts, imply that benign image changes have the same effect, or prove that the classifier itself has stopped using the true alteration. Grad-CAM is an attribution to the output; $E$ measures agreement with the annotated region. Neither observation alone establishes explanation faithfulness or what a reviewer would infer from a particular map.
+
+\section{TruFor: full-resolution attack readiness and outstanding result}
+\label{sec:adv-trufor}
+
+TruFor takes a native-resolution document and produces a manipulation-probability map and an image-level score. Its attack also minimises $E$ under a hard correct-decision constraint; it does not optimise RRA directly. A routine full-image backpropagation ran out of GPU memory on the largest pilot documents. The adopted route recomputes selected network activations and evaluates attention in exact query chunks. It keeps the \emph{whole image} in the calculation rather than resizing it or attacking tiles independently. The attack obtains gradients through that route, while a separate, unmodified TruFor instance supplies the reported maps and decisions.
+
+This implementation was checked against ordinary computation where both routes fit in memory: the recorded worst map discrepancy was $9.54\times10^{-7}$ and the gradient-sign agreement was at least .999998523. The largest tested image, about 6.78 megapixels, then completed a native-resolution backward pass. These are numerical and feasibility checks, not evidence that the full attack has succeeded on the study population. They reduce the risk of claiming resistance merely because the implementation could not obtain a gradient.
+
+On one clean-correct TextDiffuser pilot image, one proposed step made a physical RGB change of only $0.25/255$. Its annotated-region $E$ changed from .755468 to .052624; the forged score went from .976692 to .850684, above the frozen .532956 threshold. This is a useful check that the objective, gradient and decision constraint can operate together. It is one image, selected for a memory stress test, with no verified RRA or DCEC status. It must not be turned into a population success percentage, an estimated DCEW transition, or a comparison of the two pipelines.
+
+The ten-step TruFor protocol is now fixed for all 1,330 clean-correct forged images across the five families in Table~\ref{tab:adv-populations}. Its RGB budget and step size match the stated ResNet physical scale, with TruFor-specific conversion into its model coordinates. Execution progress has been recorded, but the accessible progress records contain work scheduling rather than the completed pairs of attack scores and spatial metrics needed here. A completed multi-step attack result and a TruFor classification-targeted control are therefore not reported at this revision. Attack outcome rates must be calculated from the final evaluated images, not extrapolated from the subset processed so far.
+
+Chapter~\ref{ch:clean} shows why this gap matters by family. TruFor started with strong average annotated-region mass on clean-correct Digital-3 and TextDiffuser, but weak average mass on Digital-2 and FaceDancer. If a family contains few clean DCEC maps, even a strong population-level DC attack could yield a small or unstable DCEC denominator. Conversely, the large Digital-3 clean-correct roster does not establish that its maps survive a bounded perturbation. The full paired distributions and the clean gate are needed to separate these questions.
+
+\par\medskip\noindent\textbf{[TRUFOR RESULT PENDING: insert the validated, full-run family-level paired clean/adversarial $E$, RRA and PG results, decision-preservation counts, nonzero-map checks, and stem-resampled uncertainty. State exclusions and failures, and include representative paired maps selected by Appendix~\ref{app:adv-details}. Do not use execution-progress counts as an outcome denominator.]}\par\medskip
+
+The attack representation is continuous full-resolution RGB input to the model. Neither attack arm establishes that its effect would survive saving an 8-bit image or passing the adversarial image through another JPEG stage. That transfer question matters in an image-submission workflow and remains an explicit limitation of the present digital stress test.
+
+\section{From paired change to a DCEC-to-DCEW result}
+\label{sec:adv-dcew}
+
+The measured ResNet falls in $E$ show vulnerability among DC images, but $E$ alone does not answer the complete research question. Clean DCEC membership requires $E\geq\tau_E$ \emph{and} $\mathrm{RRA}\geq\tau_{\rm RRA}$ for each individual map. After that membership is fixed, DCEW requires the adversarial forged decision to remain correct and at least one of the two spatial tests to fail. The $E$ objective may also change RRA, but no RRA transition should be claimed without measuring it. Conversely, an image with very poor clean evidence cannot count as a new DCEW failure even if the attack reduces its $E$ further.
+
+The clean-development visual coding and threshold calibration specified in Appendix~\ref{app:clean-metrics} have not yet been completed, and TruFor's paired RRA/common-coordinate checks are outstanding. Some attack work preceded the final design of that clean evidence gate. The remaining calibration must use clean development judgments without choosing thresholds to maximise an already observed adversarial effect; the chronology and the remaining risk should be recorded. Once the values are fixed, Chapter~\ref{ch:clean} will report the number of forged images progressing from total to DC to DCEC, by pipeline, split and family. This chapter will then report the count remaining decision-correct with acceptable evidence, the count changing from DCEC to DCEW, and the count flipping classification, all against the \emph{same clean DCEC denominator}. Appendix~\ref{app:adv-details} supplies the arithmetic and the table to fill.
+
+\par\medskip\noindent\textbf{[JOINT-GATE RESULT PENDING: insert frozen $\tau_E$/$\tau_{\rm RRA}$ and clean DCEC denominators from Chapter~\ref{ch:clean}; calculate paired adversarial RRA, DCEC-to-DCEW counts and rates, separate decision flips, invalid maps and stem-cluster intervals for each pipeline and family. Report overall coverage against the original family size. No numerical transition claim is made in this version.]}\par\medskip
+
+The main view remains within each pipeline: how far does it move from its own acceptable clean evidence? A second view can restrict attention to images that satisfy \emph{both} pipelines' clean DCEC rules, then examine a separate within-pipeline change on those same documents. Because one uses a classifier attribution and the other a native localiser, this common-image view controls the document sample, not the architectural or training differences. It should include actual image examples and its own denominator. The shared DCEC intersection has not been measured yet.
+
+If the clean review does not support a stable threshold pair, the appropriate result is the continuous paired $E$/RRA change with the uncertain evidence classifications made explicit. A sharp DCEW percentage would imply more precision than the rectangles, map resolution and visual ratings support. The preselected $E$ attack objective and the jointly evaluated $E$/RRA outcome must also stay distinct: an attacked map can lose mass without crossing the calibrated boundary, or cross it mainly through an RRA change. Those possibilities should be tabulated, not treated as contradictory measurements.
+
+\par\medskip\noindent\textbf{[SHARED-IMAGE VIEW PENDING: insert the intersection count by family, paired within-model changes, selection rule for visual examples and coverage relative to each pipeline's full clean population after both evidence gates are fixed.]}\par\medskip
+
+\section{Interpretation and remaining limits}
+\label{sec:adv-interpretation}
+
+The ResNet result establishes a large change in annotated-region Grad-CAM mass despite preservation of every selected correct forgery decision. Its classification control establishes a separate, serious susceptibility to label flips at the same tested budget, and shows why disappearing attack-class CAMs must be interpreted carefully. Taken together, these observations show the value of asking about the decision and its map separately. They are consistent with earlier work showing that stable predictions need not have stable explanations, while testing agreement with identity-document annotations under an explicit decision constraint \citep{ghorbani2019fragile,arras2022clevrxai}.
+
+Several limits prevent a broader claim. The ResNet attack selects annotated regions, uses one clean starting point and a fixed ten-step search; it is a demonstrated vulnerability under those conditions, not a maximum over attacks. The development images and later diagnostics informed some design choices, so this is not a fully prospective test. Rectangular annotations and a coarse Grad-CAM can make a useful cue inside a face look poor by a coverage measure, or make a face-focused map look good while text is missed. The measured stem intervals address related captures for the DC-wide relative $E$ result, but not uncertainty in the uncalibrated evidence gate. Appendix~\ref{app:adv-details} records these risks, what was checked and what remains.
+
+This chapter therefore completes the DC-wide ResNet evidence and classification-control analysis, and establishes the TruFor attack's technical feasibility and fixed design. The conditional DCEC-to-DCEW answer, its uncertainty and the shared-image view await the stated gate and attack results. Chapter~6 can synthesise the final two-pipeline result once those values are added; the present measurements already show why a correct forgery warning alone is insufficient evidence that its displayed map remains well aligned with the annotated edit.

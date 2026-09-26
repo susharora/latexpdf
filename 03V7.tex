@@ -1,0 +1,217 @@
+% Chapter 3, version 7 (03_methodology_V7.tex): 26 September 2026.
+% Based on V6; includes typeset fallbacks and redraw briefs in Appendix D
+% so the chapter can be pasted and compiled without the three vector PDFs.
+% Replaces the earlier methodology V3: corrected project split, image geometry,
+% attack budget and present status. This chapter should be read alongside
+% 01V7.tex, 02V1.tex, 04V5.tex, 05V1.tex and Appendices A--E.
+% Requires amsmath, amssymb, graphicx, booktabs, tabularx, array, natbib.
+% Optional figure assets in Images/. Appendix D is 03_AppendixD_V4.tex.
+% BRACKETED AUTHOR VERIFY / RESULT PENDING statements must be resolved before
+% the final dissertation is submitted.
+
+\chapter{Methodology}
+\label{ch:methodology}
+
+\section{The question and the shape of the study}
+\label{sec:method-question}
+
+A correct forgery warning does not tell us whether the map alongside it points to the alteration. This study asks how far a small, deliberately chosen change to a document image can reduce initially acceptable spatial evidence while keeping that warning correct. Chapter~\ref{ch:litreview} explains why the two outputs need to be measured separately. This chapter explains how the images, maps and attacks are prepared and how a failure is counted. Chapters~\ref{ch:clean} and~\ref{ch:adversarial} present the clean and adversarial findings.
+
+The investigation uses two pipelines that produce different kinds of map. ResNet-18 is a document classifier; Grad-CAM is applied after its prediction to attribute the forged-class score to parts of the image \citep{he2016resnet,selvaraju2017gradcam}. TruFor is a pretrained forensic system with a native manipulation map and a separate document score \citep{guillaro2023trufor}. The purpose is to test each pipeline's evidence against its \emph{own} acceptable clean evidence. Different training exposure, map meanings and input resolutions prevent a difference between their raw scores from being attributed to architecture alone.
+
+The unit of the main analysis is a manipulated document image for one pipeline, paired with that pipeline's adversarial version of the \emph{same} image. We first identify clean-correct forged decisions (DC). Among these, we identify clean maps that meet a joint spatial-evidence rule (DCEC). We then examine the already attacked versions of that fixed DCEC set: a preserved correct decision with evidence falling below either part of the rule becomes DCEW. Showing the original number of forgeries, DC coverage and DCEC coverage is essential. Otherwise a high conditional attack rate could describe a tiny fraction of the documents that originally entered the detector. Figure~\ref{fig:method-eligibility} depicts the denominator trail; its clean-evidence gate is still being calibrated at this revision.
+
+\IfFileExists{Images/CH03_Eligibility_V3.pdf}{%
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=0.67\textheight,keepaspectratio]{Images/CH03_Eligibility_V3.pdf}
+\caption{Analysis populations for one pipeline. A clean-correct decision (DC) and a clean evidence pass (DCEC) fix the eligible denominator; DCEW is one possible adversarial outcome within that denominator. The diagram describes the analysis order, not the order in which all attacks were run. The clean evidence gate and its counts remain to be finalised.}
+\label{fig:method-eligibility}
+\end{figure}
+}{%
+\begin{figure}[H]
+\centering
+\fbox{\begin{minipage}{0.91\textwidth}\centering\small
+\textbf{All forged images} $n_f$ $\longrightarrow$
+\textbf{DC: correct clean decision} $n_{\rm DC}$\\[5pt]
+$\longrightarrow$ \textbf{DCEC: DC + clean $E\geq\tau_E$ and RRA$\geq\tau_R$}
+$n_{\rm DCEC}$\\[5pt]
+$\longrightarrow$ \textbf{DCEW: preserved attacked decision + failed $E$ or RRA gate}
+$n_{\rm DCEW}$\\[5pt]
+\emph{The clean gate is selected before joining the paired attack records.}
+\end{minipage}}
+\caption{Analysis populations for one pipeline. The clean DCEC denominator is fixed before attacked outcomes are counted. This analytical order does not imply the attacks were run after the gate was designed; calibration and counts remain pending.}
+\label{fig:method-eligibility}
+\end{figure}
+}
+
+The methods contribute to Objective O1 through the clean detection and map audit, O2 through the compression check and clean-evidence calibration, O3 through constrained attacks and classification controls, and O4 through paired and shared-image analysis. Objective O5 is addressed by the synthesis in Chapter~6. The regional restoration and compression probes help rule out simplistic accounts of a model's behaviour; they are supporting diagnostics rather than extra measures of attack success.
+
+\section{What the measurements can establish}
+\label{sec:method-paradigm}
+
+The study takes an empirical, fallibilist view. A model score, the pixels of a map and the result of applying a fixed perturbation are measurable properties of these particular computational pipelines. That is the practical \emph{ontological} assumption: the outputs exist whether or not they match an assessor's interpretation. The \emph{epistemological} limit is that ``good evidence'' is not observed directly. It is inferred from agreement with annotated rectangles, a visual judgement and an explicitly chosen rule. A rectangle may cover an edited field without tracing its exact boundary; a classifier might use a real editing trace just outside it. Agreement therefore supports a bounded claim about the map and annotation, not proof that the model reasons like a forensic examiner.
+
+This leads to a mainly quantitative, within-image experimental design. Holding the pipeline and document fixed makes clean-versus-attacked change meaningful; family-wise results show where the effect is concentrated. A small structured author review of clean maps provides context for choosing an evidence threshold, but it does not measure whether a human analyst would detect fraud more accurately. The work combines deductive tests of a stated decision-preserving failure with exploratory diagnostics prompted by observed clean behaviour. Those post-hoc checks are labelled as such, and their results are not treated as independent confirmation of a hypothesis formed before viewing the data.
+
+\section{Documents, splits and preparation}
+\label{sec:method-data}
+
+FantasyID was chosen because it supplies complete photographed cards, altered face and text regions, and manipulation annotations \citep{korshunov2025fantasyid}. Forgeries are already present in the images before our adversarial changes. In this dissertation, \emph{clean} means the image as received by the chosen pipeline before that additional change; it does not mean an unaltered identity document. No live customers or submitted real identity documents are recruited for the model evaluation.
+
+The open 1,899-image FantasyID training release was divided by card stem into a project-training set of 1,440 images from 160 stems and an internal development set of 459 images from 51 \emph{different} stems. The latter contains 306 forged images (153 Digital-1 and 153 Digital-2) and 153 bona-fide images. The separately restricted FantasyID validation release was not used. The official test has 1,385 images: 786 Digital-3, 150 FaceDancer, 149 TextDiffuserFT-BFEI and 300 bona fide. All available images enter the clean detection summaries; spatial summaries are conditional on correct clean forgery decisions, with the original family counts retained. This gives good coverage of this benchmark, but the numbers of cards and manipulation types still restrict generalisation.
+
+Stem separation prevents related captures of a card from appearing on both sides of the \emph{internal} training--development split. It does not make the whole official test card-independent. An audit of Digital-3 found that 480 of its 786 test edits have a matching card/capture parent in project training and 153 have one in project development; 153 do not have a matching project parent. The \emph{manipulated test images and the Digital-3 manipulation family} were not used to fit the ResNet model, but it would be inaccurate to call that family a wholly unseen-card test. The effects of shared parents, devices and the official test's different bona-fide pool are considered in the interpretation. No unsupported identity-disjoint claim is made for the other official-test families.
+
+The dataset provides altered-region rectangles. Within each image, we clip each rectangle to the valid raster and use the union of the resulting pixels as the reference region. We record empty or unusual boxes for review. In particular, 108 TruFor-native rectangle clips await case-level checking. The reference region is an approximate annotation, not a pixel-perfect segmentation or a guarantee that every useful forensic cue is inside the box. Bona-fide cards have no altered-region target: they enter classification specificity and TruFor's \emph{decision-threshold} fitting, but not the forged-image $E$/RRA gate fitting.
+
+\subsection{A common compression condition}
+
+Early clean results could have reflected how dataset files were prepared. A logistic-regression probe using JPEG-history features alone separated project-development classes with AUROC 1.000 after fitting on project-training features. This made compression a plausible shortcut even if the model also noticed actual alterations \citep{geirhos2020shortcut}. We therefore use the documented Policy-C condition for \emph{both} final pipelines. The source JPEG is decoded to RGB; the pixels are encoded at JPEG quality 75 with 4:2:0 chroma sampling and decoded again; a second encoding uses a deterministic quality from 50 to 90 with the same sampling. That final quality is shared by images with the same card stem and capture source. Figure~\ref{fig:method-policy} shows where this operation sits before the two pipeline-specific input transforms.
+
+\IfFileExists{Images/CH03_Data_PolicyC_V3.pdf}{%
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=0.72\textheight,keepaspectratio]{Images/CH03_Data_PolicyC_V3.pdf}
+\caption{Project data split and the common Policy-C condition. Stem separation applies to the internal train/development split. The official Digital-3 test family contains some cards with project-set parents; its test images and manipulation method remained outside fitting. After the common re-encoding, the two pipelines apply different input transforms.}
+\label{fig:method-policy}
+\end{figure}
+}{%
+\begin{figure}[H]
+\centering
+\fbox{\begin{minipage}{0.94\textwidth}\centering\small
+Open FantasyID training release: 1,899 images\\[2pt]
+$\swarrow\hspace{5em}\searrow$\\[2pt]
+\begin{tabularx}{0.91\linewidth}{@{}>{\centering\arraybackslash}X>{\centering\arraybackslash}X@{}}
+Project train: 1,440 images, 160 stems &
+Project development: 459 images, 51 distinct stems\\
+\end{tabularx}
+\par\medskip Official test: 1,385 images (separate image release; Digital-3 includes
+cards with project-set parents).\par\medskip
+Source JPEG $\rightarrow$ Q75 / 4:2:0 $\rightarrow$ decode
+$\rightarrow$ matched Q50--90 / 4:2:0 $\rightarrow$ decode.\par\medskip
+ResNet: height 512 + padded $512\times864$ canvas\qquad
+TruFor: native raster.
+\end{minipage}}
+\caption{Internal stem split, official test and common Policy-C preparation before pipeline-specific transforms. The official test is not asserted to be card-identity-disjoint.}
+\label{fig:method-policy}
+\end{figure}
+}
+
+The probe is repeated on the controlled images in Chapter~\ref{ch:clean}. Direct final-JPEG table features then have development AUROC .500, while a broader combination still reaches .586. We reduce an easy class cue without claiming to remove every processing trace. Recompression can also remove legitimate forensic information. The results therefore describe these prepared inputs; they are not a test of the original source JPEGs or a deployed submission workflow. Appendix~\ref{app:clean-resnet} records the alternatives and residual risk.
+
+\section{The two evaluated pipelines}
+\label{sec:method-pipelines}
+
+\subsection{ResNet-18 and Grad-CAM}
+
+ResNet-18 begins with ImageNet-1K pretrained weights and is fitted to the project-training condition. Training first updates its classifier head for three epochs with the feature extractor frozen, then updates the whole model for twelve epochs. The selected full-model checkpoint comes from epoch 12 by development AUROC. One recorded training seed was used. These choices make a runnable baseline and avoid training a full document detector from scratch on only 160 card stems; one seed does not measure variability across model fits. The same development data inform checkpoint selection and its reported development score, so that score is partly apparent rather than independent validation.
+
+These stages are one sequential transfer-learning schedule. Keeping the pretrained feature extractor frozen and fitting only a new head treats its features as fixed; unfreezing all layers allows the features themselves to adapt to photographed documents. The three head-only epochs warm up the new classifier before the twelve full-model epochs. This study evaluates the resulting selected model. It does not present frozen-only training, direct full-model training and the sequential schedule as three controlled comparison arms.
+
+The Policy-C document is resized to height 512 while keeping its aspect ratio, then centred on a $512\times864$ canvas. Padded sides are excluded from spatial analysis and stay unchanged during adversarial optimisation. The actual document RGB is ImageNet-normalised before the network. Its forged decision uses a probability cut-off of 0.5. Grad-CAM uses the final residual block and the forged-minus-bona-fide logit; it weights that block's activations by their spatially averaged gradients, retains positive relevance and interpolates the resulting map back to the document canvas \citep{selvaraju2017gradcam}. The coarse underlying map and the resizing matter when a text alteration is only a few pixels wide. Grad-CAM shows attribution for the chosen score; it is not a separately supervised edit segmentation.
+
+\subsection{Pretrained TruFor}
+
+The final TruFor condition retains the released pretrained weights and accepts the full Policy-C RGB image at native resolution \citep{guillaro2023trufor}. The manipulated-class softmax output is the spatial map. Its pooled image-level detection score, which also uses the model's confidence information, is a \emph{different} output. The final forged-score threshold, 0.532956, was chosen for pooled image accuracy on all 459 project-development images and then applied unchanged to every family and capture source. A calibrated decision threshold does not turn the weights into a fine-tuned model; ``zero-shot'' refers here to the absence of FantasyID weight adaptation. Calibration and reporting on the same development images produce an apparent score, and the single threshold behaves unevenly across capture sources.
+
+An earlier TruFor fine-tuning experiment used a different split and preparation protocol. It is kept as a diagnostic in Appendix~\ref{app:clean-trufor}, with no results spliced into the final pretrained condition. The pipelines consequently differ in training exposure as well as architecture and map type. This makes \emph{within-pipeline paired change} the primary inference; shared images offer a secondary descriptive check.
+
+\section{From a map to clean evidence eligibility}
+\label{sec:method-evidence}
+
+For a forged image $i$, let $M_i$ be its non-empty altered-region union, $\Omega_i$ its valid document pixels and $S_{im}(p)\geq0$ the map for pipeline $m$ on those pixels. These symbols refer to the \emph{relevant pipeline's raster}: the same edit can have different pixel area after ResNet resizing and on TruFor's native image. Define $K_i=|M_i|$ on that raster. For a finite map with positive total mass, the two main spatial measures are
+\begin{equation}
+E_{im}=\frac{\sum_{p\in M_i}S_{im}(p)}{\sum_{p\in\Omega_i}S_{im}(p)},
+\qquad
+\mathrm{RRA}_{im}=\frac{|\operatorname{TopK}_{K_i}(S_{im}|_{\Omega_i})\cap M_i|}{K_i}.
+\label{eq:method-spatial}
+\end{equation}
+$E$ describes the share of all map mass that falls in the annotation. RRA asks what share of the strongest $K_i$ pixels lies there, with $K_i$ equal to the annotation's area. This use of mass and rank adapts relevance measures to the document setting \citep{arras2022clevrxai}; the exact combined pass rule is this study's choice. A map with strong evidence on one edited face but weak evidence on a second, smaller text field can still score well on the union. For context we also report annotation fraction $A_i=|M_i|/|\Omega_i|$, area-normalised concentration $\mu_{w,i}=E_{im}/A_i$, the Pointing Game indicator for the strongest pixel, and face/text components where annotations permit. None of these supporting measures replaces the joint eligibility rule.
+
+The computation uses the document's valid coordinates: ResNet's artificial padding is excluded, and TruFor's full native content is retained. The same mask and coordinate convention must be used for the clean and attacked version of an image. Map interpolation and tied values at the top-$K$ boundary can change RRA; Appendix~\ref{app:clean-metrics} states the tie and invalid-map checks. A zero-mass, non-finite or empty-mask case is identified separately, rather than quietly treated as evidence correct. The TruFor RRA implementation and common-coordinate audit remain to be completed before the final evidence gate is frozen.
+
+Let $d_{im}(x)$ mean that pipeline $m$ correctly calls the forged image $x$ manipulated at its \emph{fixed} decision threshold. After a pipeline-specific pair of clean-evidence thresholds has been selected, its analysis sets are
+\begin{align}
+\mathrm{DC}_m&=\{i:d_{im}(x_i)=1\},\\
+\mathrm{DCEC}_m&=\{i\in\mathrm{DC}_m:E_{im}(x_i)\geq\tau_{E,m},\;
+ \mathrm{RRA}_{im}(x_i)\geq\tau_{R,m}\},\\
+\mathrm{DCEW}_m&=\{i\in\mathrm{DCEC}_m:d_{im}(x_i^{\mathrm{adv}})=1,\;
+ [E_{im}(x_i^{\mathrm{adv}})<\tau_{E,m}\ \lor\
+ \mathrm{RRA}_{im}(x_i^{\mathrm{adv}})<\tau_{R,m}]\}.
+\label{eq:method-stages}
+\end{align}
+The attack cannot enlarge its denominator by adding poorly localised clean images. A flipped decision remains in the original DCEC denominator and is reported as a \emph{separate} outcome. Undefined attacked maps also require a declared counting convention and an alternate tally; that decision has not yet been frozen. These explicit categories prevent a missing map from being passed off as either a successful localisation or an observed continuous $E$ value.
+
+\subsection{Choosing a defensible evidence rule}
+
+The literature supplies the $E$ and RRA measures, but no universal threshold for a photographed identity-document rectangle. The intended reference is a structured, masked visual review of clean development maps. For images with face and text edits, the author rates each field on an ordinal 0/1/2 scale and records uncertain cases and a short reason. During coding, the individual $E$, RRA, provisional pass labels and adversarial outcomes are hidden. Images are shown in mixed order with their annotated edit and card context. The author has already seen some aggregate experimental findings, so this is \emph{not} prospectively independent or fully blinded human validation. The coding sheet, panel presentation, review dates and any repeat ratings must be retained.
+
+Once the ratings are locked, the planned calibration compares candidate $E$/RRA pairs with a declared visual reference, using balanced accuracy to avoid rewarding a trivial majority call. Both pipelines follow the same procedure; their numeric thresholds may differ because their maps mean different things. Candidate grid, reference-label conversion, tie breaks and invalid-map policy must be written down before fitting. The clean development material alone supplies those choices. No threshold is adjusted against official-test maps, already observed attack losses or a preferred DCEW rate. The chronology matters: some DC attacks were completed \emph{before} this joint gate was designed. Withholding per-image attack outcomes during the remaining coding limits direct tuning, but it does not erase the analyst's earlier exposure. Appendix~\ref{app:clean-metrics} gives the full review protocol and sensitivity checks.
+
+\noindent\textbf{[RESULT PENDING: finish the face/text review, verify TruFor RRA and coordinate geometry, record and freeze the selected $\tau_{E,m}$ and $\tau_{R,m}$ with their clean-only selection rule, then insert the DC$\rightarrow$DCEC counts and coverage in Chapter~\ref{ch:clean}. Do not report a DCEW rate until this is done.]}
+
+\section{Adversarial changes and the comparison attack}
+\label{sec:method-attacks}
+
+The threat model gives the experimenter white-box access to each model, its gradients, the annotated altered-region union and the correct forgery label. It asks whether a feasible bounded image \emph{can} move the spatial output; it is more informed than a person submitting a document to an unknown service. Following adversarial-evaluation practice, the objective, constraint, input domain and success check are all specified \citep{madry2018towards,carlini2019evaluating}. Both evidence-directed arms seek to decrease $E$ on the already forged image while keeping that image on the forged side of its pipeline's decision threshold. They do not optimise RRA directly; RRA must be measured afterwards as an independent part of the joint outcome.
+
+For either pipeline, write $z_0$ for its Policy-C image in physical RGB units $[0,1]$, after the ResNet resize when applicable. A proposed image $z$ must satisfy $\|z-z_0\|_\infty\leq1/255$ and the valid RGB range. Starting exactly at $z_0$, the evidence attack makes ten projected sign-gradient proposals with step size $0.25/255$. If a proposal crosses the forged decision boundary, eight bisections towards the last feasible image try to recover a decision-preserving point. Only a feasible proposal with $E_{\rm proposed}\leq E_{\rm current}+10^{-8}$ is retained; otherwise the previous feasible image is kept. There is one start and no restarts. The tolerance permits numerical ties and does not promise a strict decrease on every step. After optimisation, a separate fixed evaluator checks each final score, map and actual perturbation size. Appendix~\ref{app:method-details} supplies the pseudocode, coordinate conversions and implementation record; Figure~\ref{fig:method-arms} outlines the two model-specific paths.
+
+\IfFileExists{Images/CH03_Attack_Arms_V3.pdf}{%
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=0.70\textheight,keepaspectratio]{Images/CH03_Attack_Arms_V3.pdf}
+\caption{The two evidence-directed searches use the same stated physical RGB budget but different input coordinates and maps. ResNet changes resized document pixels while keeping padding fixed and differentiates through Grad-CAM. TruFor changes native image pixels, uses its manipulation map and checks its separate image-level score. In both arms RRA is an evaluated outcome, not the attack objective.}
+\label{fig:method-arms}
+\end{figure}
+}{%
+\begin{figure}[H]
+\centering
+\fbox{\begin{minipage}{0.94\textwidth}\small
+\begin{tabularx}{\textwidth}{@{}XX@{}}
+\textbf{ResNet-18 / Grad-CAM} & \textbf{Pretrained TruFor} \\
+Resized document RGB, padding fixed; differentiate $E$ through forged-class Grad-CAM. & Native document RGB; differentiate $E$ through manipulation map.\\[4pt]
+Forged logit margin $\geq0$. & Separate forged score $\geq0.532956$.\\
+\end{tabularx}
+\centering\medskip Both: $\|\delta\|_\infty\leq1/255$ in physical RGB;
+10 projected proposals, eight feasibility bisections when needed.\par
+RRA is calculated after the search, not optimised.
+\end{minipage}}
+\caption{The two evidence-directed searches have a common physical RGB budget but different input rasters, maps and decision checks.}
+\label{fig:method-arms}
+\end{figure}
+}
+
+ResNet's search changes only the resized document-content pixels. ImageNet channel normalisation turns its physical RGB budget into channel-specific network-space bounds. Decreasing $E$ requires differentiating through the gradients used to make Grad-CAM, so the search involves higher-order derivatives. Its hard feasibility rule is forged-minus-bona-fide logit $\geq0$, equivalent to the 0.5 forged-probability decision here. This is an attack on the processed $512\times864$ input, not a claim that a perturbation to an original full-resolution JPEG would have the same effect after resizing.
+
+TruFor may change any native document pixel, with no artificial padding. Its cached $[0,1]$ image $z$ is passed to the released model as $x=z\,255/256$. Consequently the same physical $1/255$ bound becomes $1/256$ in these model coordinates, and the $0.25/255$ step becomes $0.25/256$. Feasibility requires its separate forged score to stay at or above 0.532956. Full native gradients required recomputation of activations and exact attention-query chunks to fit available GPU memory. The gradient route was checked against ordinary evaluation where both fit; a separate unmodified model evaluates attack candidates. The single largest-image one-step test in Chapter~\ref{ch:adversarial} establishes implementation feasibility, not a full-population attack effect.
+
+For both arms the authoritative attacked object remains continuous floating-point RGB. It is not converted to eight-bit pixels or passed through a new JPEG save before the final reported map and decision. A $1/255$ norm bound is therefore a bounded \emph{model-input} stress test, not a guarantee of imperceptibility, physical reproducibility or survival through a real upload pipeline. Model-specific spatial results must also be read alongside their different preprocessing and initial clean coverage.
+
+A separate ResNet control targets the \emph{bona-fide decision} with ten-step projected gradient descent at the same $1/255$ bound and $0.25/255$ step, but starts at a random point inside the allowed box. Three 72-image pilots tested $4/255$, $2/255$ and $1/255$; the latter is the smallest \emph{tested} budget, not a proven minimum. The full control uses all 456 selected images across Digital-1, Digital-2 and FaceDancer, including six FaceDancer cases already classified incorrectly. Its outcome asks whether a classifier can be fooled, and helps explain why an attribution can vanish after the forged class vanishes. Such a flipped case cannot satisfy the decision-preserving DCEW definition. A comparable full TruFor classification control has not been verified at this revision.
+
+\section{Who enters each result and how change is estimated}
+\label{sec:method-analysis}
+
+The ResNet evidence attack was completed on 450 initially DC images: 153 Digital-1, 153 Digital-2 and 144 FaceDancer. The first two are internal development families; FaceDancer supplies the selected official-test attack family. ResNet DC elsewhere includes just 6 of 786 Digital-3 and 32 of 149 TextDiffuserFT forgeries, with very weak clean regional evidence. These are displayed in the original-family clean coverage rather than silently reclassified as attack failures or successes. The selected attack scope was chosen using clean performance, and any later DCEC count will be conditional on that scope. The frozen TruFor DC roster contains 1,330 images: 153 Digital-1, 135 Digital-2, 786 Digital-3, 107 FaceDancer and 149 TextDiffuserFT. Partial Phase-A records have been ingested and audited for scientific state, but the full paired ten-step population and its RRA outcomes still need validated final outputs; a processed count alone is not an attack outcome.
+
+Chapter~\ref{ch:clean} reports pooled detection in the challenge style as well as the full family-by-family DC and map distributions. Overall classification performance includes genuine-card specificity; the forged-only DC denominator for $E$/RRA is stated separately. The distinct view in Chapter~\ref{ch:adversarial} first describes continuous clean-to-attacked change among paired DC cases, then, once the clean gate is frozen, estimates the conditional DCEC-to-DCEW fraction. For an image with positive clean $E$, its relative $E$ loss is $(E_i^{\rm clean}-E_i^{\rm adv})/E_i^{\rm clean}$. We average \emph{those image-wise losses}; subtracting family means and dividing by the clean family mean would answer a different question. Positive and negative individual changes stay in the analysis.
+
+For the final DCEC report, each pipeline and family should show the chain $n_{\rm forged}\rightarrow n_{\rm DC}\rightarrow n_{\rm DCEC}$. Classify each eligible attack in order: incomplete run; changed decision (while recording any invalid map as a separate flag); preserved decision with invalid map; preserved decision with valid map and a failed evidence rule (DCEW); or preserved decision with valid map and a passing rule. These mutually exclusive bins keep the fixed eligible denominator intact. Alongside $n_{\rm DCEW}/n_{\rm DCEC}$, report $n_{\rm DCEC}/n_{\rm forged}$ and the absolute counts. A sensitivity analysis can count decision-preserved invalid maps as evidence failures, but must show that choice explicitly. The percentages then show both \emph{susceptibility where a map started useful} and \emph{how often that starting point existed}. A shared eligible-image intersection may show the \emph{same documents} for each pipeline's separate paired calculation, including paired visual examples; it does not support an unadjusted ranking of the architectures.
+
+Images from the same card stem are related. The completed ResNet relative-$E$ intervals resample document stems, keeping their images together, and recompute the paired statistic in each resample. The proposed DCEW intervals must likewise recompute both numerator and frozen clean DCEC denominator for resampled stems. A separate repeat of clean-only threshold fitting can examine calibration uncertainty; a stem interval conditional on a single chosen gate does not capture it. Nor does it capture retraining, the uncertain rectangle boundaries, alternative attack starts or a new institution's documents. Family-wise summaries and a rule-based set of median, low-change, large-change and borderline examples help show exceptions without passing selected images off as a rate. Appendices~\ref{app:clean-metrics} and~\ref{app:adv-details} give the rating and example-selection details.
+
+\section{Validity, ethics and a traceable record}
+\label{sec:method-validity}
+
+Several design choices address specific risks. Compression checks and the controlled JPEG condition address a preparation shortcut, although residual history remains. Stem separation protects the internal model-development split; the Digital-3 parent overlap is disclosed rather than treated as a wholly new identity test. Family-wise denominators expose poor clean detection. A second spatial measure, face/text inspection, annotation-boundary checks and visual review address the risk that a good union-$E$ conceals a poor map. The classification control separates decision flips from evidence failures. Exact evaluator checks and gradient parity help avoid mistaking an engineering failure for adversarial robustness. The dates, measurements and open actions for these risks are summarised in Appendix~\ref{app:method-details}; model-specific registers remain in Appendices~\ref{app:clean-resnet}, \ref{app:clean-trufor} and~\ref{app:adv-details}.
+
+The material is a research dataset of fictional documents; no external human participants were recruited for the model evaluation. The author-only visual review is a method for interpreting clean maps, not a study of customers or independent forensic experts. Images and example panels may nevertheless depict plausible personal details or identifiers. Working copies, access controls and any public dissemination of examples must follow the dataset terms and applicable university data-storage rules. \textbf{[AUTHOR VERIFY BEFORE SUBMISSION: state the actual WMG ethics approval, delegated approval or waiver route; approval date/reference and whether author coding required a separate review; the actual storage location, access and retention plan; and cite or attach the approval/waiver form, confirmation and required training records. These have not been verified from the available experiment files.]}
+
+The key reproducibility unit is a dated set of data-split rules, Policy-C settings, chosen model/decision threshold, clean evaluator, attack protocol and per-image paired results. Chapter prose states the decisions needed to understand the result; Appendix~\ref{app:method-details} holds the procedure and a provenance template for scripts, run manifests, checkpoint IDs and file digests. Those identifiers should be inserted only after checking the actual files. Hardware-dependent numerical differences, one ResNet training seed and the unexplained small difference between an earlier and the final ResNet visual attack run limit exact repetition. The final visual run supplies the Chapter~\ref{ch:adversarial} paired estimates; its corresponding individual records, rather than a mixture of runs, must be preserved.
+
+\section{Conclusion}
+\label{sec:method-conclusion}
+
+The design begins with a real clean-baseline question: which documents get a correct warning, and which of their maps agree well enough with the edited region to be worth testing? It then measures what changes when a bounded, annotation-aware attack tries to reduce that agreement while the warning remains correct. The two pipelines share the analytical rules but keep their actual maps, input coordinates and clean populations separate. Chapter~\ref{ch:clean} establishes the observed coverage and clean spatial behaviour; Chapter~\ref{ch:adversarial} reports completed paired attacks and distinguishes their present limits from the DCEC-to-DCEW result still dependent on the frozen clean gate.

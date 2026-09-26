@@ -1,0 +1,179 @@
+% Clean-evaluation appendices, version 3. Supersedes 04_AppendixV2.tex.
+% Place \appendix in the dissertation master before \input{04_AppendixV3.tex}.
+% These three chapters occupy the already-agreed A/B/C slots. Appendix D,
+% containing code, run and checkpoint provenance, belongs to reproducibility.
+% Completed results and proposed checks are distinguished throughout.
+% Requires booktabs, tabularx, array and graphicx.
+
+\chapter{Spatial measures, human review and calibration}
+\label{app:clean-metrics}
+
+\section{How an image enters the clean evidence audit}
+\label{app:clean-metrics-entry}
+
+The unit for the evidence rule is one manipulated image and one pipeline. An image enters DC if that pipeline calls it forged on the clean input at its fixed \emph{decision} threshold. Bona-fide images still inform specificity but have no annotated altered region, so they do not enter the manipulated-region E/RRA gate. Repeated captures of a document remain associated through its stem. The number entering each stage must be reported by split and manipulation family: evaluated forged images, DC, and eventually DCEC. A percentage conditioned on DCEC must always be accompanied by the size of the original family.
+
+For a valid map $S_i(p)\geq0$, altered-region union $M_i$ and valid document support $\Omega_i$, the measures are
+\begin{equation}
+\begin{aligned}
+A_i&=\frac{|M_i|}{|\Omega_i|},\\
+E_i&=\frac{\sum_{p\in M_i}S_i(p)}{\sum_{p\in\Omega_i}S_i(p)},\\
+\mu_{w,i}&=\frac{E_i}{A_i},\\
+\mathrm{RRA}_i&=\frac{|\operatorname{TopK}_{|M_i|}(S_i)\cap M_i|}{|M_i|}.
+\end{aligned}
+\label{eq:app-clean-measures}
+\end{equation}
+PG is one when the strongest valid map pixel lies in $M_i$, zero otherwise. Intersections, ranks and maxima must all be evaluated within $\Omega_i$. These definitions agree with the mass/rank distinction explained in Chapter~2 \citep{arras2022clevrxai,wang2020scorecam}. The combined $E$/RRA \emph{pass rule} is this study's own operational criterion, not a standard threshold supplied by either paper. Report per-image distributions as well as means and bootstrap intervals; $\operatorname{mean}(E_i/A_i)$ is not $\operatorname{mean}(E_i)/\operatorname{mean}(A_i)$.
+
+The masks union all altered rectangles after clipping to valid image bounds. Do not include ResNet's artificial padding in $\Omega$ or in the top-$K$ ranking. TruFor's existing outputs are measured on its native pixels, whereas the established ResNet audit measures the resized document inside its padded canvas. The final paired/common-image analysis needs a recorded common content-coordinate convention, including interpolation, clipped-box rounding and an audit that rankings and memberships remain coherent across resolutions. Merely naming the same metric does not make the two current rasters identical.
+
+An empty region, zero total map mass, NaN, or other invalid map needs an explicit diagnostic category rather than being silently assigned a favourable score. For ties at rank $K$, record the lowest and highest possible RRA from equally ranked pixels. Use a fixed coordinate rule for the reported value. A preliminary ResNet development check recorded 0/306 membership changes at provisional RRA 0.5; its original output still needs to be linked to the final evidence record. This says nothing about later thresholds or TruFor ties.
+
+\section{Visual review to support the evidence rule}
+\label{app:clean-metrics-human}
+
+\textbf{Status at this revision:} the author has begun reviewing the prepared panels. A completed, locked coding table and measured human--metric agreement are not yet available. The following is the protocol to complete and document; its suggested codes and candidate thresholds must not be written up as achieved results. Because the author has seen some aggregate findings, this is a contextual review with per-image outcomes withheld from the coding task, not independent blind validation.
+
+Create one record per clean DC development image and pipeline, with a stable but masked review ID. Default coverage is all 306 ResNet development DC forgeries and 288 TruFor development DC forgeries; if capacity requires sampling, select strata by family, annotated area and preliminary map behaviour \emph{before} opening the ratings, then disclose the sampling fraction. Present each document at readable native resolution with the altered-image overlay and its corresponding clean bona-fide reference. Show the annotated rectangle or the difference only where needed to make the rating task clear, using the same display convention for both pipelines. Preserve a copy of the exact viewed panels and instructions.
+
+Hide all E, RRA, $\mu_w$, PG, candidate acceptance status, attack outcomes, filenames that reveal an experiment outcome and any proposed numerical threshold. Randomise order within pipeline, and avoid displaying two outputs for the same stem consecutively. A reviewer may still recognise the family or the model from the map's appearance. If the researcher has already seen earlier attack summaries, the later ratings can be \emph{blinded to the displayed values} but cannot honestly be described as prospectively uninformed. Record who rated, when, whether any images were rerated and any earlier familiarity with the material.
+
+For the two development families, which each alter face and text, use separate ordinal face/text grades: 0 (no meaningful localisation), 1 (partial or uncertain coverage), 2 (clear coverage). The short codes in Table~\ref{tab:app-clean-reviewcodes} preserve where a union-level pass might conceal neglect of one field. They are proposed labels for the coding sheet, not observations.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Proposed clean-development visual codes for images containing both face and text edits. The reviewer records a brief reason when using an ambiguous rating.}
+\label{tab:app-clean-reviewcodes}
+\begin{tabular}{@{}lccp{0.55\textwidth}@{}}
+\toprule
+Code & Face & Text & Interpretation \\
+\midrule
+BY & 2 & 2 & Both altered components clearly indicated. \\
+FFPT & 2 & 1 & Face clear, text partially indicated. \\
+PFFT & 1 & 2 & Face partial, text clear. \\
+F & 2 & 0 & Face indicated, text missed. \\
+T & 0 & 2 & Text indicated, face missed. \\
+N & 0 & 0 & Neither component meaningfully indicated. \\
+50 & -- & -- & Genuinely ambiguous; reason retained. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For the primary \emph{union-level} human reference, one proposed rule treats BY, FFPT and PFFT as acceptable; F and T are component-only and remain unacceptable for the main binary comparison, while 50 is set aside. Test the alternative in which F and T also count as acceptable, because the answer may depend on how a user interprets the union of altered regions. If 1/1, 1/0 or 0/1 combinations occur, record their literal grades and a reason rather than forcing them into an inaccurate short code. For one-component official-test manipulations, grade only the component present; those later images provide examples and external checks, not labels for fitting the development thresholds.
+
+The rating task asks whether a map visually agrees with an annotation. It is not a study of reviewers' decisions in a bank, an explanation-faithfulness test, or a pixel-exact manipulation boundary assessment. A repeated masked subset can estimate the same reviewer's consistency; a second reviewer is useful if available, with disagreement and adjudication recorded rather than concealed. Do not report agreement statistics until ratings actually exist.
+
+\section{Joint threshold selection and what remains to be checked}
+\label{app:clean-metrics-threshold}
+
+Join reviewed development IDs to clean per-image E/RRA only \emph{after} ratings are locked. For each candidate pair $(\tau_E,\tau_{\rm RRA})$, call an image spatially acceptable if both inequalities hold. Compare this predicted status with the declared human reference. A possible search grid is $\tau_E\in\{.40,.45,\ldots,.70\}$ and $\tau_{\rm RRA}\in\{.50,.55,\ldots,.80\}$, but the actual candidate grid and tie rules must be recorded before fitting; this line is a proposal, not a chosen pair. Use the same selection procedure for both pipelines while allowing different numeric thresholds because the map distributions differ.
+
+The proposed main fit criterion is balanced accuracy against the human labels, so an imbalance between visually acceptable and poor maps cannot make ordinary accuracy look artificially strong. Record sensitivity, specificity, confusion counts, precision and agreement by Digital-1/Digital-2 as diagnostics. Examine whether RRA excludes images that E alone would accept, and whether each threshold disproportionately removes a family or a component type. Never optimise thresholds against official-test results, adversarial E/RRA or a desired attack-success rate. Because some attacks existed before this protocol was finalised, maintain an explicit audit of data actually viewed during selection; a clean-only computation does not erase analyst exposure.
+
+Perturb the rectangles outward by small fixed distances in a defined common coordinate system, and recompute area, E, RRA and eligibility. The proposed 8- and 16-pixel dilations are measured on a 512-pixel-high reference document and converted proportionally when the native raster differs. Report the fraction of borderline images changing membership, not just new pooled means. Resample document stems and refit the entire candidate grid to describe threshold instability. Review top-$K$ ties again at the finally selected RRA threshold. Provide separate face/text E and, where feasible, RRA so the union criterion's limitations remain visible. If these checks reveal no stable joint cut-off, report that limitation instead of forcing a binary DCEC headline.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Evidence available for the final DCEC gate. ``Pending'' means the appendix gives a procedure, not a completed result.}
+\label{tab:app-clean-status}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.40\textwidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Required item & Current record \\
+\midrule
+ResNet dev per-image E/RRA and provisional tie audit & Available; 0/306 sensitive at RRA 0.5. \\
+TruFor E/area/PG on native maps & Available; matching RRA and common-coordinate check pending. \\
+Author visual labels and reviewer consistency & Rating underway; completed codes and agreement pending. \\
+Joint threshold values and human-agreement results & Not frozen or reported. \\
+Rectangle dilation and component RRA & Dilation pending; face/text E exists for ResNet, component RRA pending. \\
+Final DCEC counts and shared-image intersection & Pending on completed preceding checks. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Once the evidence pair is selected, retain the exact development population, annotation convention, reviewed labels, selection criterion and threshold values in a dated freeze record. The figures and results in Chapter~4 are descriptive DC baselines until that record exists. The measured DCEC size, continuous spatial distributions and joint cut-offs then belong in Chapter~4; any DCEC-to-DCEW rates belong in Chapter~5. Model and code identities, run filenames, checkpoint hashes and content digests belong in the separate reproducibility Appendix D.
+
+\section{How visual examples will be selected}
+\label{app:clean-metrics-visuals}
+
+When the screenshots are ready, select examples by a recorded rule rather than choosing only attractive heatmaps. For each pipeline include a clear two-component development example, a case with high E but low RRA or an ambiguous map, a face-focused/text-poor case where applicable, a low-agreement DC image and an image near each final threshold. Add at least one official-test single-component example. Show a document crop at readable scale, the map with the rectangle overlay, the family and whether the image belongs to DC or DCEC, but conceal personal-looking details if an image is later shared beyond the dissertation. Report the values $A,E,\mathrm{RRA},PG$ once calculated, making clear that these are illustrative cases, not a representative performance estimate.
+
+% Screenshot slots for later insertion; no figure is displayed until supplied.
+% Recommended files: Images/CH04_Review_ResNet_V1.pdf and
+% Images/CH04_Review_TruFor_V1.pdf. Include each in a figure with a caption
+% listing family, scope (DC/DCEC), mask convention and actual E/RRA values.
+
+\chapter{ResNet-18 clean-audit decisions and risks}
+\label{app:clean-resnet}
+
+\section{Preprocessing and chosen clean model}
+
+The analysed model is the compression-controlled, whole-document ResNet-18 trained on project-train Digital-1 and Digital-2 with disjoint development stems. Policy C re-encodes at JPEG Q75 and then a matched deterministic final Q50--90. The model resizes document content to a height of 512 while preserving aspect ratio, centres it on a 512 $\times$ 864 canvas and excludes the padded margins from spatial measures. Grad-CAM uses the final residual block and the forged-minus-bona-fide logit. Its map is coarse, approximately $16\times27$ before interpolation. Because this is a classifier attribution, a correct class decision and high Grad-CAM annotation agreement answer different questions.
+
+The initial raw JPEG-only development AUROC was 1.000. Under the adopted control, final table features alone gave 0.500, history 0.524 and combined compression features 0.586 [0.572, 0.606]. These numbers justify treating the perfect controlled ResNet development AUROC as a result needing additional checks, not proof that it identifies every manipulation. The held-out development recall was 306/306 forged images; specificity was 148/153 bona fide images. The official-test diagnostic had just 6/786 Digital-3 and 32/149 TextDiffuser correct decisions, but 144/150 FaceDancer correct decisions. Chapter~4 keeps these family denominators visible.
+
+\section{Alternative explanations tested}
+
+Same-card, same-capture regional restorations provided a content intervention. For 153 Digital-1 and 150 compatible Digital-2 pairs, restoring the face reduced mean forged scores to 0.623 and 0.137, respectively; restoring both face and text reduced them to roughly 0.049. Text-only restoration left Digital-2 near 0.998. This supports face-dominant decision evidence under the intervention, but matching and blending do not prove the specific feature learned. The excluded three Digital-2 geometry mismatches must not be silently counted in the 150 paired cases. Figure~\ref{fig:clean-restoration} shows the results in the main chapter.
+
+The official Digital-3 AUROC of 0.059 against the official bona-fide pool prompted matched-source diagnostics. For 153 official-test Digital-3 edits paired with their project-development bona-fide parent captures, scores rose after editing in 82.4\% and the matched AUROC was 0.628 [0.592, 0.669]. The mean rise was small, 0.0094, with a 95\% interval including zero. A further test retained about 91\% of gross greyscale pixel difference after resizing and Policy C. These findings weaken the single explanation that the edit reverses the detector's signal or is simply erased by resizing, without proving that it learns a particular alternative cue. A native text-patch variant improved the same-source Digital-3 diagnostic to AUROC 0.740 but did not solve official generalisation. It was not substituted for the primary whole-document model.
+
+\section{ResNet-18 risk register}
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{ResNet clean risks. ``Measured'' identifies an actual test; a proposed control is labelled as such. The residual risk is part of the finding.}
+\label{tab:app-resnet-risks}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.20\textwidth}>{\raggedright\arraybackslash}p{0.32\textwidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Risk & Mitigation and current evidence & Remaining limitation \\
+\midrule
+Class-correlated JPEG processing & Measured Policy-C compression-feature probes; direct final-table AUROC .500. & Residual combined-feature AUROC .586; recompression changes traces. \\
+Correct decision from irrelevant cues & Measured same-parent restoration with matched JPEG processing and geometry; face dependence in both development families. & A separate classifier result for restoration artifacts has not been located; patch boundaries and other cues remain possible. \\
+Misleading official-test reversal & Measured same-source Digital-3 scores and 153 matched pairs. & Source population and forgery family still shift together in the official comparison. \\
+Coarse map hides text failure & Measured E and face/text E separately; Digital-2 mean text E only .006. & Component RRA, visual grading and GT dilation remain pending. \\
+Overconfident clean eligibility & Report full-family and DC counts before eventual DCEC counts. & Evidence cut-offs and DCEC coverage have not been frozen. \\
+Related captures understate uncertainty & Measured stem-resampled intervals for selected clean summaries. & One trained model/seed and uncertain rectangle boundaries are outside those intervals. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Area summaries help interpretation: Digital-1 mean annotation area is 15.9\% and mean E is 70.7\%, while Digital-2 area is 9.3\% and E is 54.6\%. The respective mean area-normalised concentrations are 4.77 and 6.16, computed image by image. On Digital-2, about 98.8\% of the mass \emph{inside the annotated union} belongs to the face region. Thus a union-based gate may accept face-focused evidence while still failing to help a reviewer locate a text edit. Face/text breakdowns and a blinded visual review should accompany any final union-based DCEC count.
+
+\chapter{TruFor clean-audit decisions and risks}
+\label{app:clean-trufor}
+
+\section{The evaluated zero-shot condition}
+
+The current native pipeline uses pretrained TruFor weights without FantasyID fine-tuning, on Policy-C full-resolution images. Its manipulated-class localisation probability is the spatial map for E, $A$, $\mu_w$ and PG; the separate confidence information participates in the model's pooled image decision but is not substituted for the localisation map. One global forged-score threshold, 0.532956, was selected on all 459 development images by pooled image accuracy and then used across families and devices. It is a completed \emph{classification} calibration, not the pending evidence E/RRA calibration.
+
+At that decision point, development forged recall is 288/306 and bona-fide specificity 73/153. Official-test forged recall is 1,042/1,085, while specificity is 131/300; 169 bona-fide images are false positives. Family detection and DC-spatial results appear in Tables~\ref{tab:clean-detection} and~\ref{tab:clean-spatial}. Native-map E is especially high for correctly called Digital-3 (0.642) and TextDiffuser (0.703), but low for clean-correct FaceDancer (0.112) and Digital-2 (0.192). These are means, not estimates of how many individual maps meet a future joint gate.
+
+The development calibration split is also the reported development evaluation split, so its apparent 78.6\% accuracy is not an independent check of calibration. The optimisation treats every image equally in a 306-forgery/153-bona-fide pool. It does not represent bank-specific error costs or cure the low official-test specificity. Huawei development bona-fide specificity was only 9.8\% under the same global threshold. No post-hoc device-specific adjustment was adopted.
+
+\section{Historical adaptation and evidence status}
+
+An older fine-tuned TruFor EP28 experiment exists, so it would be inaccurate to say the project never attempted adaptation. That experiment used an earlier development split and a different evaluation protocol. Its report gives perfect development classification measures but official-test AUROC 0.409 and 0/786 correct Digital-3 decisions. It is an adaptation diagnostic showing that encouraging development performance did not establish transfer; its numbers must not be merged with, or treated as a controlled ablation of, the later Policy-C zero-shot run. The main Chapter~4 tables describe only the latter.
+
+Existing TruFor runs generated spatial panels, but the panel count is not a completed blinded rating study. The native-mask implementation clipped 108 altered rectangles to image bounds; these need a case-level review to distinguish expected edge clipping from annotation-coordinate errors. A common content-coordinate E/RRA evaluation with ResNet, the human-review labels and boundary sensitivity remain open. Until those checks are complete, no TruFor DCEC count or cross-pipeline DCEC intersection is established.
+
+\section{TruFor risk register}
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{TruFor clean risks, distinguishing measured controls from work still needed for the evidence gate.}
+\label{tab:app-trufor-risks}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.20\textwidth}>{\raggedright\arraybackslash}p{0.32\textwidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Risk & Mitigation and current evidence & Remaining limitation \\
+\midrule
+Decision threshold confuses ranking with operating quality & Measured one global dev-accuracy threshold; report recall, specificity and AUROC separately. & Calibration and evaluation share development images; test false positives remain high. \\
+Map and score have different roles & Measured the native manipulated-class probability as spatial output; detector score used for DC. & High document score does not imply acceptable map agreement. \\
+Device/family shift & Measured family- and device-stratified clean results without a per-device refit. & Weak FaceDancer E and Huawei specificity constrain interpretation. \\
+Annotation and coordinate error & Rectangles clipped to native bounds and retained in the current E audit. & Audit of 108 clipped rectangles and common-coordinate RRA still pending. \\
+Prepared maps mistaken for human validation & Author rating is under way; Appendix A specifies masking of per-image outcomes. & No locked labels, agreement statistics or joint thresholds. \\
+Fine-tuning trial mistaken for like-for-like comparator & Historical EP28 result labelled as a different split/protocol. & It cannot isolate the causal benefit or harm of adaptation in the current setup. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The primary future comparison is still within TruFor's own clean DCEC set. A shared eligible-image subset can help illustrate individual examples once the two evidence gates exist, but different training exposures and spatial outputs remain part of that interpretation. Full run provenance, implementation versions and checkpoint records can be placed in the separately planned reproducibility Appendix D.
